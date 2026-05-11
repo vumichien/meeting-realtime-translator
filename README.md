@@ -1,5 +1,12 @@
 # Meeting Realtime Translator
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js ≥ 20](https://img.shields.io/badge/Node.js-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Powered by OpenAI](https://img.shields.io/badge/Powered%20by-OpenAI%20Realtime-412991?logo=openai&logoColor=white)](https://platform.openai.com/docs/guides/realtime)
+[![Chrome / Edge only](https://img.shields.io/badge/Browser-Chrome%20%2F%20Edge-4285F4?logo=googlechrome&logoColor=white)]()
+[![BYO API Key](https://img.shields.io/badge/API%20Key-BYO%20%E2%80%94%20local%20only-orange)]()
+
 > Speak your language in your browser. Zoom / Meet hears you in your meeting's language. Auto-detects 70+ source languages. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
 
 ![Meeting Realtime Translator — intro animation](docs/_images/intro.gif)
