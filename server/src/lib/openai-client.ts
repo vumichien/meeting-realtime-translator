@@ -114,6 +114,15 @@ interface ExtractedSecret {
 function extractClientSecret(json: unknown): ExtractedSecret | null {
   if (!json || typeof json !== "object") return null;
   const obj = json as Record<string, unknown>;
+
+  // Current API shape (verified 2026-05): { value: "ek_...", expires_at, session }
+  const topValue = obj.value;
+  if (typeof topValue === "string") {
+    const expires = typeof obj.expires_at === "number" ? obj.expires_at : null;
+    return { value: topValue, expires_at: expires };
+  }
+
+  // Legacy / cookbook shape: { client_secret: "..." } or { client_secret: { value, expires_at } }
   const direct = obj.client_secret;
   if (typeof direct === "string") {
     const expires = typeof obj.expires_at === "number" ? obj.expires_at : null;

@@ -1,7 +1,22 @@
-import "dotenv/config";
+import { config as loadDotenv } from "dotenv";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import express from "express";
 import cors from "cors";
 import { createSessionRouter } from "./routes/session.js";
+
+// Load .env from server cwd first, then walk up to the monorepo root.
+// The repo ships a single root-level .env (see .env.example) but server/.env
+// is also accepted if present.
+for (const candidate of [
+  resolve(process.cwd(), ".env"),
+  resolve(process.cwd(), "..", ".env"),
+]) {
+  if (existsSync(candidate)) {
+    loadDotenv({ path: candidate });
+    break;
+  }
+}
 
 const PORT = Number(process.env.PORT ?? 8787);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5173";
