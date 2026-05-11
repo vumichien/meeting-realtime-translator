@@ -85,7 +85,7 @@ If Zoom doesn't show "Monitor of …" devices, run `pavucontrol`, switch to the 
 
 ## 7. Verify
 
-In another window, open <https://zoom.us/test>. Speak Vietnamese; you should hear translated audio in the Zoom test playback.
+In another window, open <https://zoom.us/test>. Speak in your source language; you should hear translated audio in the Zoom test playback.
 
 ## Troubleshooting (Linux-specific)
 

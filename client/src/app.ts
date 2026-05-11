@@ -18,7 +18,7 @@ export function mountApp(root: HTMLElement) {
   root.innerHTML = `
     <header class="app-header">
       <h1>Meeting Realtime Translator</h1>
-      <p class="subtitle">Speak Vietnamese — your meeting hears your target language. Local-only, BYO OpenAI key.</p>
+      <p class="subtitle">Speak your language — your meeting hears theirs. Auto-detects 70+ source languages. Local-only, BYO OpenAI key.</p>
     </header>
     <main class="app-main">
       <section class="panel" id="slot-controls"></section>

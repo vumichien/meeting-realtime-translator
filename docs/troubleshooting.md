@@ -10,7 +10,7 @@ Symptom-based lookup. If a problem isn't listed, open an issue with output from 
 - [Output device dropdown empty](#output-device-dropdown-empty)
 - [Virtual cable not in output list](#virtual-cable-not-in-output-list)
 - [Zoom hears nothing](#zoom-hears-nothing)
-- [Zoom hears the original Vietnamese voice](#zoom-hears-the-original-vietnamese-voice)
+- [Zoom hears your original (un-translated) voice](#zoom-hears-your-original-un-translated-voice)
 - [Captions show source but no translation](#captions-show-source-but-no-translation)
 - [Captions empty entirely](#captions-empty-entirely)
 - [Audio plays through speakers instead of the cable](#audio-plays-through-speakers-instead-of-the-cable)
@@ -65,15 +65,15 @@ Then try again.
 **Cause:** Zoom's mic input is still your real mic, not the virtual cable.
 **Fix:** In Zoom **Settings → Audio → Microphone**, pick `CABLE Output` (Win) / `BlackHole 2ch` (macOS) / `Monitor of meeting-translator` (Linux). Then in the app, confirm the **output device** is the cable's input side.
 
-### Zoom hears the original Vietnamese voice
+### Zoom hears your original (un-translated) voice
 
-**Symptom:** Translated audio reaches Zoom AND original voice does too.
+**Symptom:** Translated audio reaches Zoom AND your original voice does too.
 **Cause:** Your real mic is still wired into Zoom (or your OS mixes mic into the cable).
 **Fix:** In Zoom, the mic dropdown must be the **cable output** (not your real mic). Do not enable "stereo mix" / "monitor mic to cable" on Windows.
 
 ### Captions show source but no translation
 
-**Symptom:** Vietnamese text appears in the source pane; translation pane stays empty.
+**Symptom:** Source-language text appears in the source pane; translation pane stays empty.
 **Cause:** Most likely your OpenAI API key/account doesn't have access to `gpt-realtime-translate`. Less common: upstream model returned silence for entirely-target-language input.
 **Fix:** Check OpenAI account model access at <https://platform.openai.com/account>. Open Debug panel → look at "Errors" counter and event log for upstream error events.
 
@@ -103,7 +103,7 @@ Then try again.
 
 ### Translation cuts during target-language words
 
-**Symptom:** Speaker mixes Vietnamese with target-language phrases (e.g. English) and the model goes silent during the target-language parts.
+**Symptom:** Speaker mixes their source language with target-language phrases (e.g. English) and the model goes silent during the target-language parts.
 **Cause:** Documented model behavior — `gpt-realtime-translate` skips translating audio that's already in the listener's selected output language. See [`cost-and-limits.md`](./cost-and-limits.md#known-model-limitations).
 **Fix:** Stay in the source language. If mixed-language is unavoidable, pick a target language different from any of the languages you're likely to switch into.
 

@@ -1,6 +1,6 @@
 # Meeting Realtime Translator
 
-> Speak Vietnamese in your browser. Zoom / Meet hears you in your meeting's language. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
+> Speak your language in your browser. Zoom / Meet hears you in your meeting's language. Auto-detects 70+ source languages. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
 
 ![App screenshot — main session view](docs/_images/app-main.png)
 
@@ -48,7 +48,7 @@
    - Pick the `★` virtual cable as **Output device**.
    - Pick a **Target language**.
    - Click **Start translating**.
-   - Speak Vietnamese; the meeting hears your target language.
+   - Speak in any supported source language; the meeting hears your target language.
 
 ## How it works
 

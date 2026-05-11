@@ -38,7 +38,7 @@ Complete file inventory of Meeting Realtime Translator v0.1.0. One line per file
 - `client/src/ui/status.ts` — Status banner (connection state, errors, latency).
 
 ### Config Submodule (`client/src/config/`)
-- `client/src/config/languages.ts` — 13-language allowlist (Vietnamese → English, Spanish, French, etc.). Shared with server.
+- `client/src/config/languages.ts` — 13-language target-output allowlist (English, Spanish, French, Vietnamese, etc.). Source is auto-detected by the model from 70+ languages. Shared with server.
 
 ### Library Utilities (`client/src/lib/`)
 - `client/src/lib/debug-bundle.ts` — Captures session state (connection, events, settings) with redacted secrets for bug reports.

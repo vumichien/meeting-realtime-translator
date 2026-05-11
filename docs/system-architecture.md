@@ -10,7 +10,7 @@
 │  ┌─ Browser (Chrome/Edge) ──────────────────────────────────┐  │
 │  │                                                           │  │
 │  │  ┌─ Microphone Input ──────────────────────────────┐    │  │
-│  │  │ Real-time audio stream (e.g., Vietnamese)       │    │  │
+│  │  │ Real-time audio stream (any of 70+ languages)   │    │  │
 │  │  └────────────────────┬──────────────────────────────┘    │  │
 │  │                       │                                    │  │
 │  │  ┌────────────────────▼──────────────────────────────┐    │  │
@@ -44,7 +44,7 @@
 │  │                                                           │  │
 │  │  ┌─ Data Channels (captions) ──────────────────────┐    │  │
 │  │  │ OpenAI sends:                                   │    │  │
-│  │  │ • Source captions (what you said in Vietnamese) │    │  │
+│  │  │ • Source captions (what you said, auto-detected)│    │  │
 │  │  │ • Target captions (what listeners hear)         │    │  │
 │  │  │ captions.ts buffers and renders side-by-side    │    │  │
 │  │  └─────────────────────────────────────────────────┘    │  │

@@ -51,8 +51,8 @@ If either is missing, reboot and re-check.
 
 1. Open <https://zoom.us/test> in another window.
 2. Join the test call. Zoom plays a tone, then asks you to speak.
-3. Speak in Vietnamese. After 1–3s you should hear the translated audio played back to you.
-4. The app's caption pane shows source (Vietnamese) and translated text in parallel.
+3. Speak in your source language. After 1–3s you should hear the translated audio played back to you.
+4. The app's caption pane shows source (what you said) and translated text in parallel.
 
 ## Troubleshooting (Windows-specific)
 

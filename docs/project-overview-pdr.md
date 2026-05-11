@@ -2,7 +2,7 @@
 
 ## What is it
 
-Meeting Realtime Translator is a browser-based WebRTC application that captures your microphone, translates speech in real time via OpenAI's Realtime Translation API, and routes the translated audio back to Zoom/Meet as your microphone input. Users speak their native language (Vietnamese in the reference workflow); meeting participants hear the target language.
+Meeting Realtime Translator is a browser-based WebRTC application that captures your microphone, translates speech in real time via OpenAI's Realtime Translation API, and routes the translated audio back to Zoom/Meet as your microphone input. Users speak any of 70+ supported source languages — the model auto-detects what you say — and meeting participants hear the chosen target language.
 
 ## Product Positioning
 
@@ -27,7 +27,7 @@ Meeting Realtime Translator is a browser-based WebRTC application that captures 
 | Firefox | ✗ | `setSinkId` not implemented (v1) |
 | Safari | ✗ | `setSinkId` not implemented (v1) |
 
-Languages supported: 13 target languages. See [`cost-and-limits.md`](cost-and-limits.md) for the full matrix.
+Languages supported: 70+ source languages (auto-detected) → 13 target output languages. See [`cost-and-limits.md`](cost-and-limits.md) for the full matrix.
 
 ## Explicit Non-Goals (v1)
 
@@ -36,7 +36,7 @@ Languages supported: 13 target languages. See [`cost-and-limits.md`](cost-and-li
 - **Deployment to cloud** — server must run locally only. No public-internet deployment.
 - **Formal test suite** — acceptable for v1; unit tests planned for v1.1+.
 - **Postinstall device auto-detection** — Phase 11 deferred. Manual setup required (see per-OS docs).
-- **Multi-language input with speaker detection** — mixing Vietnamese + English in one utterance may produce silence on code-switch.
+- **Mid-utterance code-switching** — mixing your source language with the chosen target language in one utterance may produce silence during the target-language segment.
 
 ## Key Constraints
 

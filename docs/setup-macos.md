@@ -68,7 +68,7 @@ This setup is **not required** for the basic flow — the app already plays thro
 
 1. Open <https://zoom.us/test> in another window.
 2. Join the test call.
-3. Speak in Vietnamese. The translated voice should play back through Zoom's playback test.
+3. Speak in your source language. The translated voice should play back through Zoom's playback test.
 
 ## Troubleshooting (macOS-specific)
 
