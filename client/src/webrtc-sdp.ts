@@ -40,12 +40,15 @@ export interface MintedSession {
   expires_at: number | null;
 }
 
+import type { MicEnv } from "./lib/mic-env-detect";
+
 export async function mintSession(args: {
   targetLanguage: string;
   transcribeSource: boolean;
   apiKey?: string;
   endpoint?: string;
   signal?: AbortSignal;
+  micEnv?: MicEnv;
 }): Promise<MintedSession> {
   const endpoint = args.endpoint ?? "/session";
   const headers: Record<string, string> = {
@@ -59,6 +62,7 @@ export async function mintSession(args: {
     body: JSON.stringify({
       targetLanguage: args.targetLanguage,
       transcribeSource: args.transcribeSource,
+      micEnv: args.micEnv,
     }),
     signal: args.signal,
   });

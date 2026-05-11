@@ -1,5 +1,6 @@
 import { ALLOWED_LANGS, LANGUAGE_LABELS } from "../config/languages";
 import type { Settings } from "../settings";
+import { isMicEnvSetting } from "../lib/mic-env-detect";
 
 export interface ControlsCallbacks {
   onStartClick: () => void;
@@ -25,6 +26,15 @@ export function createControls(
       <label class="control-field">
         <span>Target language</span>
         <select id="ctrl-lang"></select>
+      </label>
+      <label class="control-field">
+        <span>Mic environment</span>
+        <select id="ctrl-mic-env">
+          <option value="auto">Auto (detect)</option>
+          <option value="headset">Headset / close mic</option>
+          <option value="laptop">Laptop built-in</option>
+          <option value="room">Conference / room mic</option>
+        </select>
       </label>
       <button type="button" id="ctrl-start" class="primary-btn">Start translating</button>
       <button type="button" id="ctrl-stop" class="secondary-btn" disabled>Stop</button>
@@ -80,6 +90,9 @@ export function createControls(
   const flushPunct = root.querySelector<HTMLInputElement>("#ctrl-flush-punct")!;
   flushPunct.checked = settings.get("mt.captions_flush_on_punctuation");
 
+  const micEnvSelect = root.querySelector<HTMLSelectElement>("#ctrl-mic-env")!;
+  micEnvSelect.value = settings.get("mt.mic_env");
+
   langSelect.addEventListener("change", () => {
     settings.set("mt.target_lang", langSelect.value);
     cb.onSettingsChanged();
@@ -103,6 +116,13 @@ export function createControls(
     settings.set("mt.captions_flush_on_punctuation", flushPunct.checked);
     cb.onSettingsChanged();
   });
+  micEnvSelect.addEventListener("change", () => {
+    const v = micEnvSelect.value;
+    if (isMicEnvSetting(v)) {
+      settings.set("mt.mic_env", v);
+      cb.onSettingsChanged();
+    }
+  });
 
   startBtn.addEventListener("click", () => cb.onStartClick());
   stopBtn.addEventListener("click", () => cb.onStopClick());
@@ -116,6 +136,7 @@ export function createControls(
       langSelect.disabled = running;
       transcribeBox.disabled = running;
       keyInput.disabled = running;
+      micEnvSelect.disabled = running;
     },
     setBusy(busy) {
       startBtn.disabled = busy || !stopBtn.disabled;

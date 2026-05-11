@@ -4,6 +4,12 @@ import type {
   SessionHandle,
 } from "./types";
 import { exchangeSdp, mintSession } from "./webrtc-sdp";
+import {
+  detectMicEnv,
+  micConstraintsFor,
+  type MicEnv,
+  type MicEnvSetting,
+} from "./lib/mic-env-detect";
 
 export interface StartSessionOptions {
   targetLanguage: string;
@@ -11,6 +17,7 @@ export interface StartSessionOptions {
   outputDeviceId?: string;
   apiKey?: string;
   transcribeSource?: boolean;
+  micEnv?: MicEnvSetting;
   onEvent?: (event: SessionEvent) => void;
   onRawEvent?: (raw: any, ts: number) => void;
   onStateChange?: (snapshot: ConnectionStateSnapshot) => void;
@@ -20,20 +27,25 @@ export interface StartSessionOptions {
 export async function startSession(opts: StartSessionOptions): Promise<SessionHandle> {
   const transcribeSource = opts.transcribeSource !== false;
 
+  // Resolve mic env: explicit override wins; otherwise sniff the device label.
+  const resolvedMicEnv = await resolveMicEnv(opts.micEnv ?? "auto", opts.micDeviceId);
+
   // 1. Mint short-lived client secret via local backend.
   const minted = await mintSession({
     targetLanguage: opts.targetLanguage,
     transcribeSource,
     apiKey: opts.apiKey,
+    micEnv: resolvedMicEnv,
   });
 
-  // 2. Capture mic.
+  // 2. Capture mic. Constraints per env -- avoid double-DSP with model's NR.
+  const constraints = micConstraintsFor(resolvedMicEnv);
   const micStream = await navigator.mediaDevices.getUserMedia({
     audio: {
       deviceId: opts.micDeviceId ? { exact: opts.micDeviceId } : undefined,
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
+      echoCancellation: constraints.echoCancellation,
+      noiseSuppression: constraints.noiseSuppression,
+      autoGainControl: constraints.autoGainControl,
     },
   });
   const micTrack = micStream.getAudioTracks()[0] ?? null;
@@ -140,4 +152,21 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
 function toError(err: unknown, fallback: string): Error {
   if (err instanceof Error) return err;
   return new Error(typeof err === "string" ? err : fallback);
+}
+
+async function resolveMicEnv(
+  setting: MicEnvSetting,
+  deviceId: string | undefined,
+): Promise<MicEnv> {
+  if (setting !== "auto") return setting;
+  if (!deviceId) return "laptop";
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const match = devices.find(
+      (d) => d.kind === "audioinput" && d.deviceId === deviceId,
+    );
+    return detectMicEnv(match?.label);
+  } catch {
+    return "laptop";
+  }
 }

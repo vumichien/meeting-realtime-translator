@@ -2,6 +2,20 @@
 
 All notable changes to Meeting Realtime Translator are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased] — 2026-05-11
+
+### Added
+
+- **Mic environment selector** (main controls): Auto / Headset / Laptop / Conference room. Auto-detects from device label; manual override available. Maps to server `audio.input.noise_reduction.type` (`near_field` for headset, `far_field` for laptop/room) and browser `getUserMedia` constraints.
+
+### Changed
+
+- **Browser audio constraints no longer stack with model NR.** For headset env, all of `echoCancellation`, `noiseSuppression`, `autoGainControl` are off; the model's `near_field` reduction does the work. For laptop/room env, only `autoGainControl` + `echoCancellation` remain on. Previously all three were on for every mic, causing consonant gating and AGC pumping that degraded recognition.
+
+### Notes
+
+- `turn_detection` (semantic_vad / server_vad) was investigated as a way to improve sentence-boundary handling but is **not supported on `gpt-realtime-translate`** sessions — the API returns `400 unknown_parameter` (probed 2026-05-11). The translate model handles chunking internally; no client knob is exposed.
+
 ## [v0.1.0] — 2026-05-11
 
 ### Added

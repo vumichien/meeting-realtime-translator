@@ -7,10 +7,15 @@ const TRANSLATION_CLIENT_SECRET_URL =
 const REALTIME_TRANSLATE_MODEL = "gpt-realtime-translate";
 const SOURCE_TRANSCRIPTION_MODEL = "gpt-realtime-whisper";
 
+// Server-side noise reduction mode the API accepts.
+// near_field = close-talking mic (headset). far_field = laptop / room mic.
+export type NoiseReductionType = "near_field" | "far_field";
+
 export interface MintOptions {
   targetLanguage: string;
   transcribeSource: boolean;
   apiKey: string;
+  noiseReduction?: NoiseReductionType;
 }
 
 export interface MintResult {
@@ -30,11 +35,16 @@ export interface MintFailure {
 export async function mintTranslationClientSecret(
   opts: MintOptions,
 ): Promise<MintResult | MintFailure> {
+  const noiseType: NoiseReductionType = opts.noiseReduction ?? "near_field";
+
+  // Note: `turn_detection` is NOT supported on translate sessions (probed
+  // 2026-05-11: API returns 400 unknown_parameter). The model handles chunking
+  // internally. Only `noise_reduction` and `transcription` are configurable.
   const sessionConfig: Record<string, unknown> = {
     model: REALTIME_TRANSLATE_MODEL,
     audio: {
       input: {
-        noise_reduction: { type: "near_field" },
+        noise_reduction: { type: noiseType },
         ...(opts.transcribeSource
           ? { transcription: { model: SOURCE_TRANSCRIPTION_MODEL } }
           : {}),

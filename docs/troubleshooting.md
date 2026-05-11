@@ -122,8 +122,15 @@ Then try again.
 ### Translated voice sounds robotic
 
 **Symptom:** Output voice is choppy, robotic, or low-quality.
-**Cause:** Background noise overwhelming the model's noise reduction; mic too far away.
-**Fix:** Quieter room. Move mic closer (USB headset preferred). Avoid open-room laptop mics for serious calls.
+**Cause:** Background noise overwhelming the model's noise reduction; mic too far away; or wrong **Mic environment** preset (e.g. `Headset` selected while using a laptop's built-in mic).
+**Fix:**
+1. Open the **Mic environment** selector in the main controls. Pick the option that matches your hardware:
+   - **Headset / close mic** — USB headset, AirPods, headphones with mic.
+   - **Laptop built-in** — open-air laptop mic.
+   - **Conference / room mic** — Jabra Speak, MeetingOwl, room conferencing system.
+   - **Auto** auto-detects from the device label; override manually if it picks wrong.
+2. Quieter room. Move mic closer when possible.
+3. Background noise is the most common cause for headset users — even with `near_field` reduction the model has limits. Closing windows / muting fans helps more than any setting.
 
 ### Hot-swapping mic mid-session breaks audio
 

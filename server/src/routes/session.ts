@@ -1,12 +1,22 @@
 import { Router } from "express";
 import { isAllowedLang, ALLOWED_LANGS } from "../config/languages.js";
-import { mintTranslationClientSecret } from "../lib/openai-client.js";
+import {
+  mintTranslationClientSecret,
+  type NoiseReductionType,
+} from "../lib/openai-client.js";
+
+// Closed enum of mic envs the client may send. Mapped to noise_reduction.type.
+const MIC_ENV_TO_NOISE: Record<string, NoiseReductionType> = {
+  headset: "near_field",
+  laptop: "far_field",
+  room: "far_field",
+};
 
 export function createSessionRouter(envApiKey: string | undefined) {
   const router = Router();
 
   router.post("/session", async (req, res) => {
-    const { targetLanguage, transcribeSource } = req.body ?? {};
+    const { targetLanguage, transcribeSource, micEnv } = req.body ?? {};
 
     if (!isAllowedLang(targetLanguage)) {
       return res.status(400).json({
@@ -29,10 +39,15 @@ export function createSessionRouter(envApiKey: string | undefined) {
     const wantTranscription =
       typeof transcribeSource === "boolean" ? transcribeSource : true;
 
+    // Map mic env -> noise_reduction.type. Default headset (back-compat).
+    const noiseReduction: NoiseReductionType =
+      (typeof micEnv === "string" && MIC_ENV_TO_NOISE[micEnv]) || "near_field";
+
     const result = await mintTranslationClientSecret({
       targetLanguage,
       transcribeSource: wantTranscription,
       apiKey,
+      noiseReduction,
     });
 
     if (!result.ok) {

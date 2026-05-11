@@ -88,6 +88,7 @@ meeting-auto-translate/
 | Server CORS origin    | `.env` `CLIENT_ORIGIN`       | `http://localhost:5173` |
 | Server port           | `.env` `PORT`                | `8787` |
 | Source captions       | App toggle                   | On |
+| Mic environment       | App main controls            | `Auto` (detects headset / laptop / room) |
 | Caption flush idle ms | App Advanced section         | `1500` |
 | Caption flush on punctuation | App Advanced section  | On |
 

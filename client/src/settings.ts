@@ -10,6 +10,8 @@ export interface SettingsStore {
   "mt.captions_flush_idle_ms": number;
   "mt.captions_flush_on_punctuation": boolean;
   "mt.debug_panel_open": boolean;
+  // "auto" resolves at session start from device label; else explicit env.
+  "mt.mic_env": "auto" | "headset" | "laptop" | "room";
 }
 
 export type SettingsKey = keyof SettingsStore;
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: SettingsStore = {
   "mt.captions_flush_idle_ms": 1500,
   "mt.captions_flush_on_punctuation": true,
   "mt.debug_panel_open": false,
+  "mt.mic_env": "auto",
 };
 
 export interface Settings {
@@ -62,9 +65,19 @@ function encode(value: unknown): string {
   return JSON.stringify(value);
 }
 
+// Closed-union string settings: storage values are validated against the
+// allowed set; anything else falls back to the default.
+const STRING_UNIONS: Partial<Record<SettingsKey, readonly string[]>> = {
+  "mt.mic_env": ["auto", "headset", "laptop", "room"],
+};
+
 function decode<K extends SettingsKey>(key: K, raw: string): SettingsStore[K] {
   const def = DEFAULT_SETTINGS[key];
-  if (typeof def === "string") return raw as SettingsStore[K];
+  if (typeof def === "string") {
+    const allowed = STRING_UNIONS[key];
+    if (allowed && !allowed.includes(raw)) return def as SettingsStore[K];
+    return raw as SettingsStore[K];
+  }
   if (typeof def === "boolean") {
     if (raw === "true") return true as SettingsStore[K];
     if (raw === "false") return false as SettingsStore[K];

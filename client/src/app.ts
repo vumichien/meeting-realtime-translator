@@ -119,6 +119,7 @@ export function mountApp(root: HTMLElement) {
         outputDeviceId: currentOutputDeviceId || undefined,
         apiKey: settings.get("mt.openai_key") || undefined,
         transcribeSource: settings.get("mt.transcribe_source"),
+        micEnv: settings.get("mt.mic_env"),
         onEvent: (e) => captions.push(e),
         onRawEvent: (raw, ts) => debug.recordEvent(raw, ts),
         onStateChange: (snapshot) => {

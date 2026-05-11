@@ -23,7 +23,7 @@ Typical end-to-end latency (you finish speaking → listener hears translation):
 
 Captions arrive slightly faster than translated audio, since audio synthesis adds a small final stage. Open the Debug panel and watch **Latency p50** for a live estimate.
 
-The model batches audio internally — it waits for enough context across syntactically different languages (e.g. SOV like Japanese) before producing output. This is intentional behavior, not a bug.
+The model batches audio internally — it waits for enough context across syntactically different languages (e.g. SOV like Japanese) before producing output. This is intentional behavior, not a bug. `turn_detection` is not a tunable parameter on `gpt-realtime-translate` sessions; the model decides chunking on its own.
 
 ## Supported input languages
 
