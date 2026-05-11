@@ -1,9 +1,18 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { isAllowedLang, ALLOWED_LANGS } from "../config/languages.js";
 import {
   mintTranslationClientSecret,
   type NoiseReductionType,
 } from "../lib/openai-client.js";
+
+const sessionLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "rate_limited", message: "Too many session requests — try again in a minute." },
+});
 
 // Closed enum of mic envs the client may send. Mapped to noise_reduction.type.
 const MIC_ENV_TO_NOISE: Record<string, NoiseReductionType> = {
@@ -15,7 +24,7 @@ const MIC_ENV_TO_NOISE: Record<string, NoiseReductionType> = {
 export function createSessionRouter(envApiKey: string | undefined) {
   const router = Router();
 
-  router.post("/session", async (req, res) => {
+  router.post("/session", sessionLimiter, async (req, res) => {
     const { targetLanguage, transcribeSource, micEnv } = req.body ?? {};
 
     if (!isAllowedLang(targetLanguage)) {
