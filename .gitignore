@@ -94,3 +94,8 @@ external/
 
 # Git worktrees (local development only)
 worktrees/
+
+# Local-only project metadata (not for public OSS repo)
+CLAUDE.md
+.repomixignore
+release-manifest.json
