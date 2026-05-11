@@ -1,0 +1,19 @@
+{
+  "name": "meeting-auto-translate",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser web app that translates the user's Vietnamese speech to a target language in real-time and routes translated audio into Zoom/Meet via a virtual audio cable.",
+  "license": "MIT",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm --workspace server run dev\" \"npm --workspace client run dev\"",
+    "typecheck": "npm --workspace server run typecheck && npm --workspace client run typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
