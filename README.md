@@ -66,8 +66,6 @@ Mic ─► Browser WebRTC ─► OpenAI Realtime Translation
 
 The local Node backend (`server/`) mints short-lived OpenAI client secrets so the API key never reaches the browser. The browser establishes a WebRTC session directly with `https://api.openai.com/v1/realtime/translations/calls`. The translated audio comes back as a remote track and is routed via `audioElement.setSinkId()` to the virtual cable. Zoom/Meet listens to that cable as if it were a microphone.
 
-See [`openai.md`](openai.md) for the full OpenAI cookbook reference this is built against.
-
 ## Repo structure
 
 ```
@@ -92,17 +90,6 @@ meeting-auto-translate/
 | Source captions       | App toggle                   | On |
 | Caption flush idle ms | App Advanced section         | `1500` |
 | Caption flush on punctuation | App Advanced section  | On |
-
-## Roadmap (post-v1)
-
-- Two-way translation (other speaker's language → yours).
-- Linux validation pass on additional distros.
-- Optional postinstall device-detection script (see [`plans/260511-0933-meeting-realtime-translator/phase-11-postinstall-device-check.md`](plans/260511-0933-meeting-realtime-translator/phase-11-postinstall-device-check.md)).
-- Re-evaluate Firefox 116+ `setSinkId` support.
-
-## Contributing
-
-PRs welcome. Keep code modules under 200 lines, prefer KISS/YAGNI/DRY. See [`CLAUDE.md`](CLAUDE.md) for development conventions used in this repo.
 
 ## License
 
