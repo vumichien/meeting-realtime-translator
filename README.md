@@ -9,7 +9,9 @@
 
 > Speak your language in your browser. Zoom / Meet hears you in your meeting's language. Auto-detects 70+ source languages. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
 
-![Meeting Realtime Translator — intro animation](docs/_images/intro_upscaled.gif)
+<video src="docs/_images/intro.mp4" autoplay loop muted playsinline width="100%">
+  Your browser does not support inline video. <a href="docs/_images/intro.mp4">Watch the intro animation</a>.
+</video>
 
 ## What it does
 

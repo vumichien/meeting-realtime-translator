@@ -1,3 +1,2 @@
-docs/_images/intro_upscaled.gif filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text
 docs/_images/*.mp4 filter=lfs diff=lfs merge=lfs -text
