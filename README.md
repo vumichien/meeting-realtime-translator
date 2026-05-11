@@ -2,6 +2,8 @@
 
 > Speak your language in your browser. Zoom / Meet hears you in your meeting's language. Auto-detects 70+ source languages. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
 
+<video src="docs/_images/intro.mp4" width="100%" autoplay loop muted playsinline></video>
+
 ![App screenshot — main session view](docs/_images/app-main.png)
 
 ## What it does
@@ -66,12 +68,25 @@ Mic ─► Browser WebRTC ─► OpenAI Realtime Translation
 
 The local Node backend (`server/`) mints short-lived OpenAI client secrets so the API key never reaches the browser. The browser establishes a WebRTC session directly with `https://api.openai.com/v1/realtime/translations/calls`. The translated audio comes back as a remote track and is routed via `audioElement.setSinkId()` to the virtual cable. Zoom/Meet listens to that cable as if it were a microphone.
 
+## Intro video
+
+The animated intro (`docs/_images/intro.mp4`) is built with [Remotion](https://remotion.dev).
+To preview or re-render it locally:
+
+```bash
+cd remotion
+npm install
+npm start          # opens Remotion Studio at localhost:3000
+npm run render     # re-renders to remotion/out/intro.mp4 (~30 s)
+```
+
 ## Repo structure
 
 ```
 meeting-auto-translate/
 ├── client/             # Vite + TypeScript front-end (UI, WebRTC, captions, debug panel)
 ├── server/             # Express + TypeScript backend (mints client secrets only)
+├── remotion/           # Remotion intro video (src/, out/intro.mp4)
 ├── docs/               # setup-<os>.md, troubleshooting.md, cost-and-limits.md
 ├── plans/              # design history (brainstorm + implementation phase docs)
 ├── scripts/            # dev.ps1 / dev.sh — start client + server together

@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+/remotion/node_modules
+# Remotion render output (committed to docs/_images/ instead)
+/remotion/out/
 /.pnp
 .pnp.*
 .yarn/*
