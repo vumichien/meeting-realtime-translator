@@ -22,7 +22,7 @@ All 10 core phases completed + Phase 11 deferred. Code review applied 3 High-sev
 
 ## v0.1.0 Code Review Fixes Applied
 
-**Reviewer:** code-reviewer (staff-eng adversarial pass)  
+**Reviewer:** code-reviewer (staff-eng adversarial pass)
 **Report:** `plans/reports/code-review-260511-1007-meeting-realtime-translator.md`
 
 Three High-severity fixes applied pre-tag:

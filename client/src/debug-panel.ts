@@ -257,4 +257,3 @@ function renderShell(open: boolean): string {
     </div>
   `;
 }
-

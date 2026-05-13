@@ -178,8 +178,8 @@ All notable changes to Meeting Realtime Translator are documented here. Format f
 
 ## Version 0.1.0 Code Review Summary
 
-**Reviewer:** code-reviewer (staff-eng adversarial pass)  
-**Date:** 2026-05-11  
+**Reviewer:** code-reviewer (staff-eng adversarial pass)
+**Date:** 2026-05-11
 **Report:** `plans/reports/code-review-260511-1007-meeting-realtime-translator.md`
 
 **Score:** 8.0 / 10 — PASS (conditional on fixes H1, H2, H5).
