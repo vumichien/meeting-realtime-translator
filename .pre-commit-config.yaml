@@ -1,0 +1,13 @@
+# Required when https://pre-commit.ci is enabled on the repository.
+# Hooks are lightweight and run on pre-commit.ci without local installs.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-added-large-files
