@@ -3,6 +3,11 @@ productName: Babel Mic
 icon: build/icon.png
 npmRebuild: false
 asar: true
+# electron-builder runs with `desktop/` as projectDir (npm workspace), so it cannot read the repo
+# root `.git/config`. Without an explicit publish config it still tries to build electron-updater
+# metadata and crashes with "Cannot read properties of null (reading 'provider')". Releases are
+# uploaded by CI (softprops/action-gh-release), not electron-builder's publisher.
+publish: null
 directories:
   output: dist
 files:

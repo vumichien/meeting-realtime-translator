@@ -1,5 +1,7 @@
 name: Release Desktop App
 
+# Pushing a version tag is the supported trigger. GitHub's "Releases" UI does not run this workflow
+# by itself — create a tag (e.g. `git tag v0.1.0 && git push origin v0.1.0`).
 on:
   push:
     tags:
@@ -10,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}
+    name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -27,6 +29,12 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libarchive-tools
+
       - name: Install dependencies
         run: npm install
 
@@ -36,9 +44,37 @@ jobs:
       - name: Build desktop artifacts
         run: npm run app:build
 
-      - name: Upload release assets
+      - name: Upload Windows installer(s)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-windows
+          path: desktop/dist/*.exe
+          if-no-files-found: error
+
+      - name: Upload Linux AppImage(s)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-linux
+          path: desktop/dist/*.AppImage
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built installers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-assets-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create release and upload assets
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            desktop/dist/*.exe
-            desktop/dist/*.AppImage
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: release-assets/*
