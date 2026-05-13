@@ -6,6 +6,7 @@ const source = path.join(root, "src", "onboarding");
 const target = path.join(root, "out", "onboarding");
 
 copyStatic(source, target);
+fs.copyFileSync(path.join(root, "src", "preload.cjs"), path.join(root, "out", "preload.cjs"));
 
 function copyStatic(from, to) {
   fs.mkdirSync(to, { recursive: true });

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+const { contextBridge, ipcRenderer } = require("electron");
 
 const SERVER_URL_PREFIX = "--server-url=";
 
@@ -10,18 +10,18 @@ const serverUrl =
 contextBridge.exposeInMainWorld("electron", {
   serverUrl,
   apiKey: {
-    get: () => ipcRenderer.invoke("apiKey:get") as Promise<string | null>,
-    set: (value: string) => ipcRenderer.invoke("apiKey:set", value) as Promise<void>,
-    clear: () => ipcRenderer.invoke("apiKey:clear") as Promise<void>,
+    get: () => ipcRenderer.invoke("apiKey:get"),
+    set: (value) => ipcRenderer.invoke("apiKey:set", value),
+    clear: () => ipcRenderer.invoke("apiKey:clear"),
   },
   onboarding: {
     getState: () => ipcRenderer.invoke("onboarding:get-state"),
-    completeStep: (step: number) => ipcRenderer.invoke("onboarding:complete-step", step),
+    completeStep: (step) => ipcRenderer.invoke("onboarding:complete-step", step),
     finish: () => ipcRenderer.invoke("onboarding:finish"),
   },
   platform: process.platform,
   session: {
-    testMint: async (apiKey: string) => {
+    testMint: async (apiKey) => {
       try {
         const response = await fetch(`${serverUrl}/session`, {
           method: "POST",
@@ -40,13 +40,12 @@ contextBridge.exposeInMainWorld("electron", {
     },
   },
   shell: {
-    openExternal: (url: string) => ipcRenderer.invoke("shell:open-external", url) as Promise<void>,
+    openExternal: (url) => ipcRenderer.invoke("shell:open-external", url),
   },
   telemetry: {
-    getConsent: () => ipcRenderer.invoke("telemetry:get-consent") as Promise<boolean | null>,
-    setConsent: (consent: boolean) => ipcRenderer.invoke("telemetry:set-consent", consent) as Promise<void>,
-    deleteData: () => ipcRenderer.invoke("telemetry:delete-data") as Promise<void>,
-    track: (name: string, properties?: Record<string, unknown>) =>
-      ipcRenderer.invoke("telemetry:track", name, properties ?? {}) as Promise<void>,
+    getConsent: () => ipcRenderer.invoke("telemetry:get-consent"),
+    setConsent: (consent) => ipcRenderer.invoke("telemetry:set-consent", consent),
+    deleteData: () => ipcRenderer.invoke("telemetry:delete-data"),
+    track: (name, properties) => ipcRenderer.invoke("telemetry:track", name, properties ?? {}),
   },
 });

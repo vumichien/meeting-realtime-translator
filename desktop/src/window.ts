@@ -68,5 +68,5 @@ export async function createOnboardingWindow(options: {
 }
 
 export function getPreloadPath(outDir: string): string {
-  return join(outDir, "preload.js");
+  return join(outDir, "preload.cjs");
 }

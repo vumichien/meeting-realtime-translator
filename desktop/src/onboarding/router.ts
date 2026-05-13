@@ -7,7 +7,14 @@ let pollTimer: number | null = null;
 
 const app = document.querySelector<HTMLElement>("#wizard-app")!;
 
-void boot();
+void boot().catch((err) => {
+  app.innerHTML = `
+    <section class="step">
+      <h1>Setup could not start</h1>
+      <p>${escapeHtml(err instanceof Error ? err.message : "Unknown setup error")}</p>
+    </section>
+  `;
+});
 
 async function boot() {
   const state = await window.electron!.onboarding!.getState();
@@ -18,12 +25,20 @@ async function boot() {
 async function renderStep(step: number) {
   if (pollTimer) window.clearInterval(pollTimer);
   currentStep = step;
-  const response = await fetch(`./steps/${String(step).padStart(2, "0")}.html`);
-  app.innerHTML = await response.text();
+  app.replaceChildren(getStepTemplate(step));
   app.querySelector("[data-back]")?.addEventListener("click", () => void renderStep(Math.max(1, step - 1)));
   const next = app.querySelector<HTMLButtonElement>("[data-next]");
   if (next) next.addEventListener("click", () => void completeStep(step));
   wireStep(step);
+}
+
+function getStepTemplate(step: number): DocumentFragment {
+  const id = `step-${String(step).padStart(2, "0")}`;
+  const template = document.getElementById(id);
+  if (!(template instanceof HTMLTemplateElement)) {
+    throw new Error(`Missing setup template: ${id}`);
+  }
+  return template.content.cloneNode(true) as DocumentFragment;
 }
 
 async function completeStep(step: number) {
@@ -150,4 +165,17 @@ async function playTone(deviceId: string) {
 function cableUrl(): string {
   if (window.electron?.platform === "linux") return "https://docs.pipewire.org/";
   return "https://vb-audio.com/Cable/";
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[char]!;
+  });
 }
