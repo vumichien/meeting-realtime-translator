@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          # No npm cache: root lockfiles are gitignored (see .gitignore); cache: npm requires package-lock.json.
 
       - name: Install Linux build dependencies
         if: matrix.os == 'ubuntu-latest'
