@@ -15,10 +15,36 @@
 
 ## What it does
 
-- Captures your microphone in the browser, streams it to OpenAI Realtime Translation over WebRTC, plays the translated audio back through a virtual audio cable that Zoom or Google Meet treats as your mic.
+- Captures your real microphone, streams it to OpenAI Realtime Translation over WebRTC, then plays the translated audio into a virtual audio cable that Zoom or Google Meet treats as your microphone.
 - Shows side-by-side captions: source (what you said) and translation (what listeners hear).
 - Supports 13 target languages out of the box.
 - Includes a local-only debug panel so you can see connection state, latency, VU meters, and event flow without DevTools.
+
+## Audio routing flow
+
+This is the most important setup idea:
+
+```
+Your real mic
+  -> Babel Mic Source mic
+  -> OpenAI translation
+  -> Babel Mic Output device
+  -> virtual cable playback side
+  -> virtual cable recording side
+  -> Zoom / Google Meet Microphone
+  -> meeting participants hear translated speech
+```
+
+Device names by platform:
+
+| Place | Windows VB-CABLE | macOS BlackHole | Linux PipeWire |
+|---|---|---|---|
+| Babel Mic **Source mic** | Your real microphone | Your real microphone | Your real microphone |
+| Babel Mic **Output device** | `CABLE Input (VB-Audio Virtual Cable)` | `BlackHole 2ch` | `meeting-translator` sink |
+| Zoom / Meet **Microphone** | `CABLE Output (VB-Audio Virtual Cable)` | `BlackHole 2ch` | `Monitor of meeting-translator` |
+| Zoom / Meet **Speaker** | Your headphones or speakers | Your headphones or speakers | Your headphones or speakers |
+
+On Windows the names feel backwards at first: Babel Mic plays into **CABLE Input**; Zoom or Meet records from **CABLE Output**. Do not set Zoom/Meet microphone to your real mic, or people will hear your original voice instead of the translation.
 
 ## Caveats — read before installing
 
@@ -46,7 +72,12 @@
    npm install
    ```
 
-3. **Configure Zoom / Meet** to use the virtual cable as its microphone (steps in the per-OS setup doc).
+3. **Configure Zoom / Meet**
+   - Microphone: the virtual cable recording side.
+     - Windows: `CABLE Output (VB-Audio Virtual Cable)`
+     - macOS: `BlackHole 2ch`
+     - Linux: `Monitor of meeting-translator`
+   - Speaker: your normal headphones or speakers.
 
 4. **Run and translate**
    ```bash
@@ -54,7 +85,10 @@
    ```
    Open <http://localhost:5173> in Chrome or Edge.
    - Pick your real mic as **Source mic**.
-   - Pick the `★` virtual cable as **Output device**.
+   - Pick the `★` virtual cable playback side as **Output device**.
+     - Windows: `CABLE Input (VB-Audio Virtual Cable)`
+     - macOS: `BlackHole 2ch`
+     - Linux: `meeting-translator`
    - Pick a **Target language**.
    - Click **Start translating**.
    - Speak in any supported source language; the meeting hears your target language.
@@ -62,18 +96,18 @@
 ## How it works
 
 ```
-Mic ─► Browser WebRTC ─► OpenAI Realtime Translation
-                                    │
-                                    ▼
-                          translated audio track
-                                    │
-                          setSinkId(virtual cable)
-                                    │
-                                    ▼
-                          Zoom / Meet mic input
+Real mic ─► Babel Mic ─► OpenAI Realtime Translation
+                                │
+                                ▼
+                      translated audio track
+                                │
+                      setSinkId(cable playback side)
+                                │
+                                ▼
+                 Zoom / Meet microphone (cable recording side)
 ```
 
-The local Node backend (`server/`) mints short-lived OpenAI client secrets so the API key never reaches the browser. The browser establishes a WebRTC session directly with `https://api.openai.com/v1/realtime/translations/calls`. The translated audio comes back as a remote track and is routed via `audioElement.setSinkId()` to the virtual cable. Zoom/Meet listens to that cable as if it were a microphone.
+The local Node backend (`server/`) mints short-lived OpenAI client secrets so the API key never reaches the browser. The browser establishes a WebRTC session directly with `https://api.openai.com/v1/realtime/translations/calls`. The translated audio comes back as a remote track and is routed via `audioElement.setSinkId()` to the virtual cable playback side. Zoom/Meet listens to the cable recording side as if it were your microphone.
 
 ## Intro video
 

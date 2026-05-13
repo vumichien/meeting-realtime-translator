@@ -62,14 +62,18 @@ Then try again.
 ### Zoom hears nothing
 
 **Symptom:** Other participants in Zoom hear silence.
-**Cause:** Zoom's mic input is still your real mic, not the virtual cable.
-**Fix:** In Zoom **Settings → Audio → Microphone**, pick `CABLE Output` (Win) / `BlackHole 2ch` (macOS) / `Monitor of meeting-translator` (Linux). Then in the app, confirm the **output device** is the cable's input side.
+**Cause:** Zoom's mic input is still your real mic, or Babel Mic is not outputting into the cable.
+**Fix:** Set both sides of the route:
+1. In Babel Mic, **Source mic** = your real microphone.
+2. In Babel Mic, **Output device** = `CABLE Input` (Windows) / `BlackHole 2ch` (macOS) / `meeting-translator` (Linux).
+3. In Zoom or Meet, **Microphone** = `CABLE Output` (Windows) / `BlackHole 2ch` (macOS) / `Monitor of meeting-translator` (Linux).
+4. In Zoom or Meet, **Speaker** = your real headphones or speakers.
 
 ### Zoom hears your original (un-translated) voice
 
 **Symptom:** Translated audio reaches Zoom AND your original voice does too.
 **Cause:** Your real mic is still wired into Zoom (or your OS mixes mic into the cable).
-**Fix:** In Zoom, the mic dropdown must be the **cable output** (not your real mic). Do not enable "stereo mix" / "monitor mic to cable" on Windows.
+**Fix:** In Zoom/Meet, the microphone dropdown must be the cable recording side, not your real mic. On Windows that means **Microphone = CABLE Output**. Your real mic belongs only in Babel Mic **Source mic**. Do not enable "stereo mix" / "monitor mic to cable" on Windows.
 
 ### Captions show source but no translation
 
@@ -87,7 +91,7 @@ Then try again.
 
 **Symptom:** You hear the translated audio out loud locally; Zoom hears nothing.
 **Cause:** `setSinkId` failed silently (rare) or you didn't pick the cable as output.
-**Fix:** Re-pick the `★` output device. Reload page. Confirm the picker shows the star.
+**Fix:** Re-pick the `★` output device in Babel Mic. On Windows this must be `CABLE Input`, not your headphones. Your headphones should be selected only as the Zoom/Meet **Speaker**.
 
 ### `/session` returns 401
 

@@ -40,8 +40,8 @@ the embedded random-port server directly.
 │  │  ┌────────────────────▼──────────────────────────────┐    │  │
 │  │  │ audio-devices.ts                                 │    │  │
 │  │  │ • Query available microphones & speakers         │    │  │
-│  │  │ • Route translated audio to virtual cable via    │    │  │
-│  │  │   audioElement.setSinkId(virtualCableDeviceId)   │    │  │
+│  │  │ • Route translated audio to cable playback side  │    │  │
+│  │  │   via audioElement.setSinkId(deviceId)           │    │  │
 │  │  │ • Detect device changes; refresh pickers         │    │  │
 │  │  └────────────────────┬──────────────────────────────┘    │  │
 │  │                       │                                    │  │
@@ -54,7 +54,7 @@ the embedded random-port server directly.
 │  │                       │                                    │  │
 │  │  ┌────────────────────▼──────────────────────────────┐    │  │
 │  │  │ Zoom / Google Meet                               │    │  │
-│  │  │ • Listens to virtual cable as if it's a mic     │    │  │
+│  │  │ • Uses cable recording side as microphone       │    │  │
 │  │  │ • Conference participants hear translated audio  │    │  │
 │  │  └────────────────────────────────────────────────────┘    │  │
 │  │                                                           │  │
@@ -245,7 +245,7 @@ interface SessionEvent {
 ```typescript
 interface Settings {
   sourceMicId: string     // selected microphone device ID
-  outputSpeakerId: string // virtual cable device ID
+  outputSpeakerId: string // cable playback-side device ID
   targetLanguage: string  // e.g., 'en', 'es', 'fr'
   sourceTranscription: boolean
   captionFlushIdleMs: number

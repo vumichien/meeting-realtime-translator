@@ -37,19 +37,27 @@ Babel Mic opens a setup wizard the first time it starts.
 1. **Welcome:** Start the setup.
 2. **Virtual cable:** Install a virtual audio cable. This is a small audio device that lets Zoom or Meet hear Babel Mic.
 3. **OpenAI key:** Paste your OpenAI API key. Babel Mic stores it using your operating system protection.
-4. **Devices:** Pick your real microphone and the virtual cable output. Play the test tone.
-5. **Zoom or Meet:** Set the meeting app microphone to the virtual cable.
+4. **Devices in Babel Mic:** Pick your real microphone as **Source mic**. Pick the cable playback side as **Output device**.
+   - Windows: `CABLE Input (VB-Audio Virtual Cable)`
+   - macOS: `BlackHole 2ch`
+   - Linux: `meeting-translator`
+5. **Zoom or Meet:** Set the meeting app microphone to the cable recording side.
+   - Windows: `CABLE Output (VB-Audio Virtual Cable)`
+   - macOS: `BlackHole 2ch`
+   - Linux: `Monitor of meeting-translator`
+   Keep the meeting app speaker set to your normal headphones or speakers.
 
 You can rerun the wizard later from **Help → Run setup wizard again**.
 
 ## Daily Use
 
 1. Open Babel Mic.
-2. Pick your source microphone.
-3. Pick the virtual cable as output.
+2. In Babel Mic, pick your real microphone as **Source mic**.
+3. In Babel Mic, pick the cable playback side as **Output device**.
 4. Pick the target language.
 5. Click **Start translating**.
-6. In Zoom or Meet, keep the microphone set to the virtual cable.
+6. In Zoom or Meet, keep **Microphone** set to the cable recording side.
+7. In Zoom or Meet, keep **Speaker** set to your headphones or speakers.
 
 ## Uninstall
 
@@ -63,10 +71,10 @@ Linux: delete the `.AppImage`. If you created menu entries, remove them from you
 Install VB-CABLE on Windows or configure a PipeWire null sink on Linux, then unplug and replug audio devices or restart Babel Mic.
 
 **Zoom hears silence.**
-Check that Zoom microphone is the virtual cable, not your real microphone.
+Check that Zoom microphone is the cable recording side, not your real microphone. On Windows this is `CABLE Output`, while Babel Mic output must be `CABLE Input`.
 
 **I hear the translated voice on my speakers.**
-Set Babel Mic output to the virtual cable, not your headphones.
+Set Babel Mic output to the cable playback side, not your headphones. In the meeting app, headphones belong in **Speaker**, not **Microphone**.
 
 **Where is my API key stored?**
 In the OS-protected app data folder through Electron `safeStorage` when available. Browser developer mode still uses localStorage.

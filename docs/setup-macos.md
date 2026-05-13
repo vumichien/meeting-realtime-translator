@@ -6,6 +6,15 @@
 
 BlackHole is a free virtual audio driver. Anything written to BlackHole is readable from BlackHole. Zoom's mic input listens to BlackHole; the app routes translated audio to BlackHole.
 
+Keep this direction in mind:
+
+| Place | Pick this device |
+|---|---|
+| Babel Mic **Source mic** | Your real microphone |
+| Babel Mic **Output device** | `BlackHole 2ch` |
+| Zoom / Meet **Microphone** | `BlackHole 2ch` |
+| Zoom / Meet **Speaker** | Your real headphones or speakers |
+
 **Option A — Homebrew (recommended)**
 
 ```bash
@@ -40,8 +49,8 @@ This setup is **not required** for the basic flow — the app already plays thro
 ## 5. Configure Zoom
 
 1. Open Zoom → **Settings → Audio**.
-2. **Speaker**: your real headphones.
-3. **Microphone**: `BlackHole 2ch`.
+2. **Speaker**: your real headphones or speakers.
+3. **Microphone**: `BlackHole 2ch` (not your real mic).
 4. Uncheck **Automatically adjust microphone volume**.
 5. Background noise suppression: **Low** (the model already does noise reduction).
 
@@ -51,8 +60,8 @@ This setup is **not required** for the basic flow — the app already plays thro
 
 1. Join a Meet call.
 2. Click **⋮ (More) → Settings → Audio**.
-3. **Microphone**: `BlackHole 2ch`.
-4. **Speakers**: your real headphones.
+3. **Microphone**: `BlackHole 2ch` (not your real mic).
+4. **Speakers**: your real headphones or speakers.
 
 ## 7. Run the app and pick devices
 
@@ -60,7 +69,7 @@ This setup is **not required** for the basic flow — the app already plays thro
 2. Open <http://localhost:5173> in **Chrome** or **Edge**.
 3. Grant microphone access.
 4. **Source mic**: your real microphone.
-5. **Output device**: `★ BlackHole 2ch`. Star confirms detection.
+5. **Output device**: `★ BlackHole 2ch`. This is where Babel Mic plays the translated voice. Star confirms detection.
 6. **Target language**: pick from the dropdown.
 7. Click **Start translating**.
 
@@ -77,7 +86,7 @@ This setup is **not required** for the basic flow — the app already plays thro
 | BlackHole not in Audio MIDI Setup | Install incomplete or reboot needed | `brew uninstall blackhole-2ch && brew install blackhole-2ch`; reboot |
 | Chrome can't list devices | Mic permission not granted | System Settings → Privacy & Security → Microphone → enable Chrome |
 | Zoom hears static / dropouts | Sample rate mismatch | Set BlackHole and your headphones both to 48 kHz in Audio MIDI Setup |
-| No translated audio in Zoom | Output device in app set to your headphones, not BlackHole | Re-pick `★ BlackHole 2ch` |
+| No translated audio in Zoom | App output is not BlackHole, or Zoom mic is not BlackHole | In Babel Mic output, pick `★ BlackHole 2ch`; in Zoom/Meet microphone, pick `BlackHole 2ch` |
 | Echo for other participants | You're monitoring BlackHole back into your mic | Don't route BlackHole as a default input device system-wide |
 | Want 16-channel BlackHole instead | Power-user need (channel splitting) | `brew install blackhole-16ch`; otherwise 2ch is simpler |
 

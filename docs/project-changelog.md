@@ -33,6 +33,7 @@ All notable changes to Meeting Realtime Translator are documented here. Format f
 
 - **Packaged desktop app blank screen:** Built browser assets with relative paths so Electron can load the main app from packaged `file://` HTML after onboarding completes.
 - **Desktop setup controls:** Aligned onboarding checkbox labels with their inputs and added visible hover/press feedback to wizard action buttons. Test tone button now shows transient success/failure text.
+- **Setup documentation clarity:** README, user guide, and OS setup guides now spell out the cable direction: Babel Mic source is the real mic, Babel Mic output is the cable playback side, meeting microphone is the cable recording side, and meeting speaker stays headphones/speakers.
 
 ### Notes
 
