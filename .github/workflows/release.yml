@@ -65,6 +65,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Write release body from changelog
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 scripts/build-github-release-body.py --tag "${{ github.ref_name }}"
+
       - name: Download built installers
         uses: actions/download-artifact@v4
         with:
@@ -75,6 +83,8 @@ jobs:
       - name: Create release and upload assets
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          # Do not use generate_release_notes: re-running this workflow on the same tag stacks
+          # duplicate "What's Changed" blocks. Body is built once from docs/project-changelog.md.
+          body_path: release-body.md
           fail_on_unmatched_files: true
           files: release-assets/*
