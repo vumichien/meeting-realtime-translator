@@ -2,6 +2,22 @@
 
 ## Runtime Data Flow
 
+## Desktop Distribution Layer
+
+```
+Electron main (desktop/)
+├─ starts Express backend on 127.0.0.1 with PORT=0
+├─ passes random server URL through preload
+├─ stores API key through safeStorage-backed IPC
+├─ opens first-run setup wizard until onboarding is complete
+└─ loads the existing Vite client in dev or client/dist in packaged builds
+```
+
+The browser developer flow remains unchanged: `npm run dev` starts the server on
+`127.0.0.1:8787` and the Vite client on `localhost:5173`. The desktop flow uses
+the same renderer code, but `window.electron.serverUrl` makes session minting hit
+the embedded random-port server directly.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ User Workstation                                                │
@@ -24,8 +40,8 @@
 │  │  ┌────────────────────▼──────────────────────────────┐    │  │
 │  │  │ audio-devices.ts                                 │    │  │
 │  │  │ • Query available microphones & speakers         │    │  │
-│  │  │ • Route translated audio to virtual cable via    │    │  │
-│  │  │   audioElement.setSinkId(virtualCableDeviceId)   │    │  │
+│  │  │ • Route translated audio to cable playback side  │    │  │
+│  │  │   via audioElement.setSinkId(deviceId)           │    │  │
 │  │  │ • Detect device changes; refresh pickers         │    │  │
 │  │  └────────────────────┬──────────────────────────────┘    │  │
 │  │                       │                                    │  │
@@ -38,7 +54,7 @@
 │  │                       │                                    │  │
 │  │  ┌────────────────────▼──────────────────────────────┐    │  │
 │  │  │ Zoom / Google Meet                               │    │  │
-│  │  │ • Listens to virtual cable as if it's a mic     │    │  │
+│  │  │ • Uses cable recording side as microphone       │    │  │
 │  │  │ • Conference participants hear translated audio  │    │  │
 │  │  └────────────────────────────────────────────────────┘    │  │
 │  │                                                           │  │
@@ -229,7 +245,7 @@ interface SessionEvent {
 ```typescript
 interface Settings {
   sourceMicId: string     // selected microphone device ID
-  outputSpeakerId: string // virtual cable device ID
+  outputSpeakerId: string // cable playback-side device ID
   targetLanguage: string  // e.g., 'en', 'es', 'fr'
   sourceTranscription: boolean
   captionFlushIdleMs: number

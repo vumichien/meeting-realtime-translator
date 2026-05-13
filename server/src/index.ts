@@ -19,6 +19,7 @@ for (const candidate of [
 }
 
 const PORT = Number(process.env.PORT ?? 8787);
+const HOST = process.env.HOST ?? "127.0.0.1";
 const IS_PROD = process.env.NODE_ENV === "production";
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? (IS_PROD ? null : "http://localhost:5173");
 
@@ -36,7 +37,7 @@ if (!ENV_API_KEY) {
 }
 
 const app = express();
-app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(cors({ origin: isAllowedOrigin }));
 app.use(express.json({ limit: "16kb" }));
 
 app.get("/health", (_req, res) => {
@@ -45,8 +46,24 @@ app.get("/health", (_req, res) => {
 
 app.use(createSessionRouter(ENV_API_KEY));
 
-app.listen(PORT, () => {
-  console.log(`[server] listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  const address = server.address();
+  const actualPort = typeof address === "object" && address ? address.port : PORT;
+  console.log(`[server] listening on http://${HOST}:${actualPort}`);
   console.log(`[server] CORS origin: ${CLIENT_ORIGIN}`);
   console.log(`[server] env API key: ${ENV_API_KEY ? "present" : "missing"}`);
+  process.send?.({ type: "ready", port: actualPort });
 });
+
+server.on("error", (err: NodeJS.ErrnoException) => {
+  process.send?.({ type: "error", code: err.code, message: err.message });
+  console.error(`[server] listen failed: ${err.message}`);
+});
+
+function isAllowedOrigin(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+  if (!origin) return callback(null, true);
+  if (origin === CLIENT_ORIGIN) return callback(null, true);
+  if (origin === "file://" || origin.startsWith("app://")) return callback(null, true);
+  if (!IS_PROD && origin === "http://127.0.0.1:5173") return callback(null, true);
+  return callback(null, false);
+}

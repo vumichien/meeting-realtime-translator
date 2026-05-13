@@ -22,8 +22,8 @@ export function createDevicePickers(opts: DevicePickerOptions): DevicePickerHand
   const root = document.createElement("div");
   root.className = "device-pickers";
 
-  const micField = makeField("Microphone", "device-mic");
-  const outField = makeField("Output (route to virtual cable)", "device-output");
+  const micField = makeField("Source mic (your real microphone)", "device-mic");
+  const outField = makeField("Babel Mic output (virtual cable playback side)", "device-output");
 
   micField.select.addEventListener("change", () => opts.onMicChange(micField.select.value));
   outField.select.addEventListener("change", () => opts.onOutputChange(outField.select.value));

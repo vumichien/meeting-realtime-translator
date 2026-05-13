@@ -4,10 +4,14 @@
   "private": true,
   "description": "Browser web app that translates the user's Vietnamese speech to a target language in real-time and routes translated audio into Zoom/Meet via a virtual audio cable.",
   "license": "MIT",
-  "workspaces": ["client", "server"],
+  "workspaces": ["client", "server", "desktop"],
   "scripts": {
     "dev": "concurrently -n server,client -c blue,green \"npm --workspace server run dev\" \"npm --workspace client run dev\"",
-    "typecheck": "npm --workspace server run typecheck && npm --workspace client run typecheck"
+    "app:dev": "npm --workspace server run build && concurrently -k -n client,desktop -c green,magenta \"npm --workspace client run dev\" \"npm --workspace desktop run dev\"",
+    "app:build": "npm --workspace server run build && npm --workspace client run build && npm --workspace desktop run build && npm --workspace desktop run build:pack",
+    "app:build:all": "npm run app:build",
+    "app:build:dir": "npm --workspace server run build && npm --workspace client run build && npm --workspace desktop run build && npm --workspace desktop run build:dir",
+    "typecheck": "npm --workspace server run typecheck && npm --workspace client run typecheck && npm --workspace desktop run typecheck"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",

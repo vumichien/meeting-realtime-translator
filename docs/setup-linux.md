@@ -15,6 +15,15 @@ Expect: `Server Name: PulseAudio (on PipeWire ...)`. If you're on legacy PulseAu
 
 The app writes translated audio to a sink; Zoom listens to the **monitor** of that sink as if it were a microphone.
 
+Keep this direction in mind:
+
+| Place | Pick this device |
+|---|---|
+| Babel Mic **Source mic** | Your real microphone |
+| Babel Mic **Output device** | `meeting-translator` sink |
+| Zoom / Meet **Microphone** | `Monitor of meeting-translator` |
+| Zoom / Meet **Speaker** | Your real headphones or speakers |
+
 ```bash
 pactl load-module module-null-sink \
   sink_name=meeting-translator \
@@ -61,8 +70,8 @@ A simpler approach (without a config file) is to drop the `pactl load-module ...
 ## 4. Configure Zoom (Linux client)
 
 1. Open Zoom → **Settings → Audio**.
-2. **Speaker**: your real headphones.
-3. **Microphone**: `Monitor of meeting-translator` (sometimes appears under the device's full description).
+2. **Speaker**: your real headphones or speakers.
+3. **Microphone**: `Monitor of meeting-translator` (sometimes appears under the device's full description, and should not be your real mic).
 4. Disable **Automatically adjust volume**.
 
 If Zoom doesn't show "Monitor of …" devices, run `pavucontrol`, switch to the **Recording** tab, and route Zoom there.
@@ -71,7 +80,7 @@ If Zoom doesn't show "Monitor of …" devices, run `pavucontrol`, switch to the 
 
 1. Join a call.
 2. **⋮ → Settings → Audio → Microphone** → `Monitor of meeting-translator`.
-3. Speakers → your real headphones.
+3. Speakers → your real headphones or speakers.
 
 ## 6. Run the app
 
@@ -79,7 +88,7 @@ If Zoom doesn't show "Monitor of …" devices, run `pavucontrol`, switch to the 
 2. Open <http://localhost:5173> in Chrome or Chromium-based browsers.
 3. Grant mic permission.
 4. **Source mic**: your real mic.
-5. **Output device**: `★ meeting-translator` (the star confirms the highlight pattern matched).
+5. **Output device**: `★ meeting-translator`. This is where Babel Mic plays the translated voice. The star confirms the highlight pattern matched.
 6. **Target language**: pick.
 7. Click **Start translating**.
 
@@ -95,7 +104,7 @@ In another window, open <https://zoom.us/test>. Speak in your source language; y
 | Star badge missing in app | Sink name differs from `meeting-translator` | Recreate sink with exact name |
 | Wayland: Chrome can't list devices | xdg-desktop-portal not running | `systemctl --user start xdg-desktop-portal` |
 | Chrome shows no `Monitor of …` device | PulseAudio compat layer missing | `sudo apt install pipewire-pulse` (or your distro's equivalent) and re-login |
-| Zoom mic level stays at 0 | Wrong source picked in `pavucontrol` Recording tab | In `pavucontrol`, set Zoom's source to `Monitor of meeting-translator` |
+| Zoom mic level stays at 0 | Wrong source picked in `pavucontrol` Recording tab, or app is not outputting to `meeting-translator` | In Babel Mic output, pick `★ meeting-translator`; in `pavucontrol`, set Zoom's source to `Monitor of meeting-translator` |
 | Audio glitches / underruns | Quantum size too small | `pw-metadata -n settings 0 clock.force-quantum 1024` |
 
 ---

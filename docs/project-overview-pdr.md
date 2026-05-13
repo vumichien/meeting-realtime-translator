@@ -14,7 +14,7 @@ Meeting Realtime Translator is a browser-based WebRTC application that captures 
 
 - **Frontend:** Vite + React + TypeScript. Runs in Chrome/Edge only (requires `setSinkId`).
 - **Backend:** Express + TypeScript. Mints short-lived OpenAI client secrets; never exposes API key to browser.
-- **Audio routing:** Virtual audio cable (VB-CABLE on Windows, BlackHole on macOS, PipeWire on Linux) configured as Zoom/Meet microphone.
+- **Audio routing:** Babel Mic uses the real microphone as source and plays translated audio into the virtual cable playback side. Zoom/Meet uses the cable recording side as microphone and keeps speakers/headphones as normal output.
 - **Translation:** OpenAI Realtime Translation API (WebRTC over HTTPS).
 
 ## Browser & OS Support

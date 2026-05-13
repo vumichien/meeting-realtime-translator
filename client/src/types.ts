@@ -40,3 +40,10 @@ export interface SessionHandle {
   /** The translated remote stream once it has arrived (null until ontrack). */
   remoteStream(): MediaStream | null;
 }
+
+export interface ApiKeyProvider {
+  get(): Promise<string>;
+  set(apiKey: string): Promise<void>;
+  clear(): Promise<void>;
+  migrateFromLocalStorage?(): Promise<void>;
+}

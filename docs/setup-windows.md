@@ -6,6 +6,15 @@
 
 VB-CABLE is a free virtual audio cable: anything written to "CABLE Input" is readable on "CABLE Output". Zoom listens to "CABLE Output" while the app writes translated audio to "CABLE Input".
 
+Keep this direction in mind:
+
+| Place | Pick this device |
+|---|---|
+| Babel Mic **Source mic** | Your real microphone |
+| Babel Mic **Output device** | `CABLE Input (VB-Audio Virtual Cable)` |
+| Zoom / Meet **Microphone** | `CABLE Output (VB-Audio Virtual Cable)` |
+| Zoom / Meet **Speaker** | Your real headphones or speakers |
+
 1. Download the latest installer from <https://vb-audio.com/Cable/>.
 2. Right-click the extracted `VBCABLE_Setup_x64.exe` → **Run as administrator**.
 3. Click **Install Driver**. Reboot when prompted.
@@ -24,7 +33,7 @@ If either is missing, reboot and re-check.
 
 1. Open Zoom → **Settings → Audio**.
 2. **Speaker**: your real headphones or speakers (so you hear the meeting normally).
-3. **Microphone**: `CABLE Output (VB-Audio Virtual Cable)`.
+3. **Microphone**: `CABLE Output (VB-Audio Virtual Cable)` (not your real mic).
 4. Uncheck **Automatically adjust microphone volume**. Set the slider to ~70%.
 5. Optional: under **Background noise suppression**, set to **Low** — the model already does noise reduction.
 
@@ -34,8 +43,8 @@ If either is missing, reboot and re-check.
 
 1. Join a Meet call.
 2. Click **⋮** (More) → **Settings → Audio**.
-3. **Microphone**: `CABLE Output (VB-Audio Virtual Cable)`.
-4. **Speakers**: your real headphones.
+3. **Microphone**: `CABLE Output (VB-Audio Virtual Cable)` (not your real mic).
+4. **Speakers**: your real headphones or speakers.
 
 ## 5. Run the app and pick devices
 
@@ -43,7 +52,7 @@ If either is missing, reboot and re-check.
 2. Open <http://localhost:5173> in **Chrome** or **Edge**.
 3. Grant microphone permission when prompted.
 4. **Source mic**: your real microphone (USB headset, laptop mic, etc.).
-5. **Output device**: `★ CABLE Input (VB-Audio Virtual Cable)`. The ★ confirms detection.
+5. **Output device**: `★ CABLE Input (VB-Audio Virtual Cable)`. This is where Babel Mic plays the translated voice. The ★ confirms detection.
 6. **Target language**: pick from the dropdown (Japanese, Spanish, etc.).
 7. Click **Start translating**.
 
@@ -59,7 +68,7 @@ If either is missing, reboot and re-check.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | `CABLE Output` missing from Zoom mic dropdown | Driver install partial or Zoom started before reboot | Reboot Windows; restart Zoom |
-| Zoom hears nothing | App's output device is not set to `CABLE Input` | In the app, re-pick the ★ output device |
+| Zoom hears nothing | App output is not `CABLE Input`, or Zoom mic is not `CABLE Output` | In Babel Mic, pick `★ CABLE Input`; in Zoom/Meet microphone, pick `CABLE Output` |
 | Echo / feedback | Headphones leaking into your real mic, or you have `CABLE Input` set as your default playback | Wear closed-back headphones; do NOT set CABLE Input as default device |
 | `npm run dev` fails to start | PowerShell execution policy | Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once |
 | AV blocks VB-CABLE installer | False positive | Verify signature from "VB-Audio Software"; allow once |

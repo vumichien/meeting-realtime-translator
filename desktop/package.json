@@ -1,0 +1,54 @@
+{
+  "name": "@meeting-translate/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron desktop shell for Babel Mic.",
+  "type": "module",
+  "main": "out/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-onboarding-assets.cjs",
+    "build:dir": "electron-builder --config electron-builder.yml --dir",
+    "build:pack": "electron-builder --config electron-builder.yml",
+    "dev": "npm run build && electron .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "electron": "33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.babelmic.app",
+    "productName": "Babel Mic",
+    "icon": "build/icon.png",
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../server/dist",
+        "to": "server/dist"
+      },
+      {
+        "from": "../client/dist",
+        "to": "client/dist"
+      }
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ]
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Utility"
+    }
+  }
+}

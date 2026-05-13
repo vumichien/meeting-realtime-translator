@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Babel Mic Setup</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="wizard-app" class="wizard-shell"></main>
+    <template id="step-01">
+      <section class="step">
+        <h1>Set up Babel Mic</h1>
+        <p>This quick setup connects your microphone, virtual cable, OpenAI key, and meeting app.</p>
+        <p>Keep Zoom or Google Meet closed until the final step so device changes are easier to see.</p>
+        <div class="actions">
+          <button type="button" data-next>Start setup</button>
+        </div>
+      </section>
+    </template>
+    <template id="step-02">
+      <section class="step">
+        <h1>Install a virtual cable</h1>
+        <p>Babel Mic sends translated speech to a virtual microphone. Install VB-CABLE on Windows or a PipeWire null sink on Linux.</p>
+        <div class="status" data-cable-status>Waiting for virtual cable</div>
+        <div class="actions">
+          <button type="button" class="secondary" data-back>Back</button>
+          <button type="button" class="secondary" data-open-cable>Open installer page</button>
+          <button type="button" data-next disabled>Next</button>
+        </div>
+      </section>
+    </template>
+    <template id="step-03">
+      <section class="step">
+        <h1>Add your OpenAI key</h1>
+        <p>The key is stored with your operating system protection. It is used only to mint local translation sessions.</p>
+        <label>
+          OpenAI API key
+          <input type="password" data-api-key placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="status" data-key-status>Paste a key, then validate it.</div>
+        <div class="actions">
+          <button type="button" class="secondary" data-back>Back</button>
+          <button type="button" class="secondary" data-validate-key>Validate</button>
+          <button type="button" data-next disabled>Next</button>
+        </div>
+      </section>
+    </template>
+    <template id="step-04">
+      <section class="step">
+        <h1>Choose devices</h1>
+        <p>Select your real microphone, then send Babel Mic output to the cable playback side. On Windows, choose CABLE Input here.</p>
+        <label>Source mic<select data-mic></select></label>
+        <label>Babel Mic output device<select data-output></select></label>
+        <label class="checkbox-row"><input type="checkbox" data-heard /> <span>I heard the test tone through the cable</span></label>
+        <div class="actions">
+          <button type="button" class="secondary" data-back>Back</button>
+          <button type="button" class="secondary" data-test-audio>Play test tone</button>
+          <button type="button" data-next disabled>Next</button>
+        </div>
+      </section>
+    </template>
+    <template id="step-05">
+      <section class="step">
+        <h1>Point Zoom or Meet at the cable</h1>
+        <p>Open your meeting app audio settings. Keep your real mic only in Babel Mic, not in the meeting app.</p>
+        <p>Zoom: Settings -> Audio -> Microphone -> CABLE Output or virtual recording source. Speaker -> headphones or speakers.</p>
+        <p>Google Meet: More options -> Settings -> Audio -> Microphone -> virtual recording source. Speakers -> headphones or speakers.</p>
+        <label class="checkbox-row"><input type="checkbox" data-configured /> <span>I configured my meeting app microphone</span></label>
+        <p>Help improve Babel Mic by sending anonymous setup and session events. Audio, captions, API keys, names, and IP addresses are never sent by the app.</p>
+        <div class="actions">
+          <button type="button" class="secondary" data-back>Back</button>
+          <button type="button" class="secondary" data-telemetry-no>No thanks</button>
+          <button type="button" class="secondary" data-telemetry-yes>Share anonymous events</button>
+          <button type="button" data-next disabled>Finish</button>
+        </div>
+      </section>
+    </template>
+    <script type="module" src="./router.js"></script>
+  </body>
+</html>

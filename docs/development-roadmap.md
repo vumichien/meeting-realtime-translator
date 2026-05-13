@@ -88,8 +88,8 @@ Planned features + polish for public release:
 
 ### Phase 19: Postinstall Device Detection Script (Backlog)
 - Originally Phase 11, deferred as YAGNI.
-- Auto-detect virtual cable on first run; guide user to configure Zoom/Meet.
-- Revisit after user feedback.
+- Progressed through Babel Mic desktop setup wizard: first-run virtual cable detection + Zoom/Meet guidance now lives in app.
+- Remaining: real installer postinstall hook still deferred.
 - Estimated effort: 1 phase.
 
 ### Phase 20: Documentation Polish (Backlog)
