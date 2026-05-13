@@ -1,5 +1,7 @@
 # Meeting Realtime Translator
 
+**Non-tech user?** Start with the [Babel Mic desktop user guide](docs/user-guide.md). **Developer?** Keep reading for the browser + local backend workflow. See [changelog](docs/project-changelog.md) for release history.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js ≥ 20](https://img.shields.io/badge/Node.js-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

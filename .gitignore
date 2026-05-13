@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+/client/node_modules/
+/server/node_modules/
+/desktop/node_modules/
 /remotion/node_modules
 # Remotion render output (committed to docs/_images/ instead)
 /remotion/out/
@@ -102,3 +105,13 @@ worktrees/
 CLAUDE.md
 .repomixignore
 release-manifest.json
+.agents/
+.codex/
+AGENTS.md
+
+# Electron desktop build output
+client/dist/
+server/dist/
+desktop/out/
+desktop/dist/
+desktop/release/

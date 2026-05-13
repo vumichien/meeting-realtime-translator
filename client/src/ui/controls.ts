@@ -1,6 +1,7 @@
 import { ALLOWED_LANGS, LANGUAGE_LABELS } from "../config/languages";
 import type { Settings } from "../settings";
 import { isMicEnvSetting } from "../lib/mic-env-detect";
+import type { ApiKeyProvider } from "../types";
 
 export interface ControlsCallbacks {
   onStartClick: () => void;
@@ -18,6 +19,7 @@ export interface ControlsHandle {
 export function createControls(
   settings: Settings,
   cb: ControlsCallbacks,
+  apiKeyProvider?: ApiKeyProvider,
 ): ControlsHandle {
   const root = document.createElement("section");
   root.className = "controls";
@@ -79,7 +81,13 @@ export function createControls(
   const clearBtn = root.querySelector<HTMLButtonElement>("#ctrl-clear")!;
 
   const keyInput = root.querySelector<HTMLInputElement>("#ctrl-key")!;
-  keyInput.value = settings.get("mt.openai_key");
+  if (apiKeyProvider) {
+    void apiKeyProvider.get().then((apiKey) => {
+      keyInput.value = apiKey;
+    });
+  } else {
+    keyInput.value = settings.get("mt.openai_key");
+  }
 
   const transcribeBox = root.querySelector<HTMLInputElement>("#ctrl-transcribe")!;
   transcribeBox.checked = settings.get("mt.transcribe_source");
@@ -98,7 +106,9 @@ export function createControls(
     cb.onSettingsChanged();
   });
   keyInput.addEventListener("change", () => {
-    settings.set("mt.openai_key", keyInput.value.trim());
+    const apiKey = keyInput.value.trim();
+    if (apiKeyProvider) void apiKeyProvider.set(apiKey);
+    else settings.set("mt.openai_key", apiKey);
     cb.onSettingsChanged();
   });
   transcribeBox.addEventListener("change", () => {

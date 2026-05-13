@@ -50,7 +50,7 @@ export async function mintSession(args: {
   signal?: AbortSignal;
   micEnv?: MicEnv;
 }): Promise<MintedSession> {
-  const endpoint = args.endpoint ?? "/session";
+  const endpoint = args.endpoint ?? getSessionEndpoint();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -88,4 +88,9 @@ export async function mintSession(args: {
     client_secret: json.client_secret,
     expires_at: typeof json.expires_at === "number" ? json.expires_at : null,
   };
+}
+
+function getSessionEndpoint(): string {
+  const serverUrl = window.electron?.serverUrl;
+  return serverUrl ? `${serverUrl}/session` : "/session";
 }

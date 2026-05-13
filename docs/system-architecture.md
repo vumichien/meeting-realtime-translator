@@ -2,6 +2,22 @@
 
 ## Runtime Data Flow
 
+## Desktop Distribution Layer
+
+```
+Electron main (desktop/)
+├─ starts Express backend on 127.0.0.1 with PORT=0
+├─ passes random server URL through preload
+├─ stores API key through safeStorage-backed IPC
+├─ opens first-run setup wizard until onboarding is complete
+└─ loads the existing Vite client in dev or client/dist in packaged builds
+```
+
+The browser developer flow remains unchanged: `npm run dev` starts the server on
+`127.0.0.1:8787` and the Vite client on `localhost:5173`. The desktop flow uses
+the same renderer code, but `window.electron.serverUrl` makes session minting hit
+the embedded random-port server directly.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ User Workstation                                                │

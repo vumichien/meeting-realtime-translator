@@ -11,9 +11,12 @@ import { createCaptionsView } from "./captions";
 import { createDebugPanel } from "./debug-panel";
 import { startSession } from "./translation-session";
 import type { SessionHandle } from "./types";
+import { createApiKeyProvider } from "./lib/api-key-provider";
 
 export function mountApp(root: HTMLElement) {
   const settings = createSettings();
+  const apiKeyProvider = createApiKeyProvider();
+  void apiKeyProvider.migrateFromLocalStorage?.();
 
   root.innerHTML = `
     <header class="app-header">
@@ -58,6 +61,7 @@ export function mountApp(root: HTMLElement) {
   let currentHandle: SessionHandle | null = null;
   let currentOutputDeviceId = settings.get("mt.output_device_id");
   let currentMicDeviceId = settings.get("mt.mic_device_id");
+  let sessionStartedAt = 0;
 
   const pickers = createDevicePickers({
     initialMicId: currentMicDeviceId,
@@ -91,7 +95,7 @@ export function mountApp(root: HTMLElement) {
         transcribeSource: settings.get("mt.transcribe_source"),
       });
     },
-  });
+  }, apiKeyProvider);
   root.querySelector("#slot-controls")!.append(controls.rootEl);
 
   // Request mic permission upfront so device labels populate.
@@ -117,7 +121,7 @@ export function mountApp(root: HTMLElement) {
         targetLanguage: settings.get("mt.target_lang"),
         micDeviceId: currentMicDeviceId || undefined,
         outputDeviceId: currentOutputDeviceId || undefined,
-        apiKey: settings.get("mt.openai_key") || undefined,
+        apiKey: (await apiKeyProvider.get()) || undefined,
         transcribeSource: settings.get("mt.transcribe_source"),
         micEnv: settings.get("mt.mic_env"),
         onEvent: (e) => captions.push(e),
@@ -128,13 +132,17 @@ export function mountApp(root: HTMLElement) {
           else if (snapshot.connectionState === "failed") {
             status.setStatus("failed");
             status.showError("WebRTC connection failed. Click Start to retry.");
-            stop();
+            stop("error");
           } else if (snapshot.connectionState === "closed") status.setStatus("closed");
           else if (snapshot.connectionState === "connecting") status.setStatus("connecting");
         },
         onError: (err) => status.showError(err.message),
       });
       currentHandle = handle;
+      sessionStartedAt = Date.now();
+      void window.electron?.telemetry?.track("session.started", {
+        target_lang: settings.get("mt.target_lang"),
+      });
       debug.bindSession(handle);
       controls.setRunning(true);
       controls.setBusy(false);
@@ -144,12 +152,22 @@ export function mountApp(root: HTMLElement) {
       const message = err instanceof Error ? err.message : "Failed to start session";
       status.setStatus("failed");
       status.showError(message, { sticky: true });
+      void window.electron?.telemetry?.track("error.session", {
+        error_class: err instanceof Error ? err.name : "UnknownError",
+      });
     }
   }
 
-  function stop() {
+  function stop(endReason: "user" | "error" = "user") {
     currentHandle?.stop();
+    if (currentHandle && sessionStartedAt) {
+      void window.electron?.telemetry?.track("session.ended", {
+        duration_ms: Date.now() - sessionStartedAt,
+        end_reason: endReason,
+      });
+    }
     currentHandle = null;
+    sessionStartedAt = 0;
     debug.unbindSession();
     controls.setRunning(false);
     status.setStatus("idle");

@@ -1,0 +1,30 @@
+appId: com.babelmic.app
+productName: Babel Mic
+icon: build/icon.png
+npmRebuild: false
+asar: true
+directories:
+  output: dist
+files:
+  - out/**/*
+  - package.json
+extraResources:
+  - from: ../server/dist
+    to: server/dist
+  - from: ../client/dist
+    to: client/dist
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: AudioVideo

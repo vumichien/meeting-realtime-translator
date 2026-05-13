@@ -6,6 +6,23 @@ All notable changes to Meeting Realtime Translator are documented here. Format f
 
 ### Added
 
+- **Babel Mic desktop app track:** Electron desktop shell, embedded random-port local server, first-run setup wizard, OS-protected API key storage via `safeStorage`, opt-in telemetry scaffold, and Windows/Linux packaging config.
+- **Non-tech user guide:** Added desktop install, first-run wizard, daily use, uninstall, and FAQ documentation.
+
+### App Users
+
+- New Babel Mic desktop distribution path for Windows and Linux.
+- First-run wizard guides virtual cable setup, OpenAI key validation, device selection, and Zoom/Meet microphone selection.
+- API key can persist across desktop restarts through OS-protected storage.
+- Anonymous telemetry remains off by default and requires explicit consent.
+
+### Developers
+
+- Added `desktop/` npm workspace with Electron 33 and electron-builder 25.
+- Added `npm run app:dev`, `npm run app:build`, `npm run app:build:dir`, and `npm run app:build:all`.
+- Added GitHub Actions release workflow for `v*` tags.
+- Local browser `npm run dev` flow remains unchanged.
+
 - **Mic environment selector** (main controls): Auto / Headset / Laptop / Conference room. Auto-detects from device label; manual override available. Maps to server `audio.input.noise_reduction.type` (`near_field` for headset, `far_field` for laptop/room) and browser `getUserMedia` constraints.
 
 ### Changed
