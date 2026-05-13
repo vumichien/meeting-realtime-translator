@@ -29,6 +29,11 @@ All notable changes to Meeting Realtime Translator are documented here. Format f
 
 - **Browser audio constraints no longer stack with model NR.** For headset env, all of `echoCancellation`, `noiseSuppression`, `autoGainControl` are off; the model's `near_field` reduction does the work. For laptop/room env, only `autoGainControl` + `echoCancellation` remain on. Previously all three were on for every mic, causing consonant gating and AGC pumping that degraded recognition.
 
+### Fixed
+
+- **Packaged desktop app blank screen:** Built browser assets with relative paths so Electron can load the main app from packaged `file://` HTML after onboarding completes.
+- **Desktop setup controls:** Aligned onboarding checkbox labels with their inputs and added visible hover/press feedback to wizard action buttons. Test tone button now shows transient success/failure text.
+
 ### Notes
 
 - `turn_detection` (semantic_vad / server_vad) was investigated as a way to improve sentence-boundary handling but is **not supported on `gpt-realtime-translate`** sessions — the API returns `400 unknown_parameter` (probed 2026-05-11). The translate model handles chunking internally; no client knob is exposed.

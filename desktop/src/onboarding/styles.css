@@ -43,14 +43,45 @@ button {
   border-radius: 8px;
   padding: 11px 16px;
   background: #10202a;
+  box-shadow: 0 1px 0 rgba(16, 32, 42, 0.08);
   color: white;
   cursor: pointer;
   font-weight: 700;
+  min-height: 48px;
+  touch-action: manipulation;
+  transform: translateY(0);
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 120ms ease;
 }
 
 button.secondary {
   background: #dce8e5;
   color: #10202a;
+}
+
+button:not(:disabled):hover {
+  background: #183342;
+  box-shadow: 0 8px 18px rgba(16, 32, 42, 0.16);
+  transform: translateY(-1px);
+}
+
+button.secondary:not(:disabled):hover {
+  background: #cbded9;
+}
+
+button:not(:disabled):active,
+button.button-clicked:not(:disabled) {
+  box-shadow: 0 3px 8px rgba(16, 32, 42, 0.16) inset;
+  transform: translateY(1px) scale(0.98);
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(20, 196, 183, 0.45);
+  outline-offset: 3px;
 }
 
 button:disabled {
@@ -72,6 +103,25 @@ label {
   display: grid;
   gap: 8px;
   font-weight: 700;
+}
+
+.checkbox-row {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  line-height: 1.35;
+  margin-top: 4px;
+  width: fit-content;
+}
+
+.checkbox-row input[type="checkbox"] {
+  accent-color: #0f766e;
+  cursor: pointer;
+  flex: 0 0 auto;
+  height: 18px;
+  margin: 0;
+  width: 18px;
 }
 
 .status {

@@ -1,4 +1,6 @@
 import { detectVirtualCable } from "../cable-detect.js";
+import { wireButtonFeedback } from "./button-feedback.js";
+import { playToneWithFeedback } from "./tone-test.js";
 
 const STEPS = [1, 2, 3, 4, 5] as const;
 
@@ -26,6 +28,7 @@ async function renderStep(step: number) {
   if (pollTimer) window.clearInterval(pollTimer);
   currentStep = step;
   app.replaceChildren(getStepTemplate(step));
+  wireButtonFeedback(app);
   app.querySelector("[data-back]")?.addEventListener("click", () => void renderStep(Math.max(1, step - 1)));
   const next = app.querySelector<HTMLButtonElement>("[data-next]");
   if (next) next.addEventListener("click", () => void completeStep(step));
@@ -105,7 +108,7 @@ function wireDeviceStep() {
   heard.addEventListener("change", () => {
     next.disabled = !(mic.value && output.value && heard.checked);
   });
-  test.addEventListener("click", () => void playTone(output.value));
+  test.addEventListener("click", () => void playToneWithFeedback(test, output.value));
 }
 
 function wireZoomMeetStep() {
@@ -143,23 +146,6 @@ async function populateDevices(mic: HTMLSelectElement, output: HTMLSelectElement
     if (device.kind === "audioinput") mic.add(option);
     else output.add(option);
   }
-}
-
-async function playTone(deviceId: string) {
-  const ctx = new AudioContext();
-  const oscillator = ctx.createOscillator();
-  const dest = ctx.createMediaStreamDestination();
-  oscillator.frequency.value = 440;
-  oscillator.connect(dest);
-  const audio = new Audio();
-  audio.srcObject = dest.stream;
-  if (deviceId && "setSinkId" in audio) await (audio as HTMLAudioElement & { setSinkId(id: string): Promise<void> }).setSinkId(deviceId);
-  oscillator.start();
-  await audio.play();
-  window.setTimeout(() => {
-    oscillator.stop();
-    void ctx.close();
-  }, 1200);
 }
 
 function cableUrl(): string {
