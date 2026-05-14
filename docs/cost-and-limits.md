@@ -4,13 +4,14 @@ Honest expectations before you put this in front of a real meeting.
 
 ## Pricing
 
-`gpt-realtime-translate` is metered per audio minute (input + output). Pricing changes — see <https://openai.com/pricing> for the current rate.
+`gpt-realtime-translate` is metered per audio minute. OpenAI listed it at **$0.034/minute** on 2026-05-14, and `gpt-realtime-whisper` at **$0.017/minute** when source captions are enabled. Pricing changes — see <https://openai.com/api/pricing/> for current rates.
 
 Budget rough planning:
-- A 1-hour Zoom meeting = ~60 minutes of audio in + ~60 minutes audio out + transcription if enabled.
-- For long meetings, consider toggling **Show source captions** off in the Advanced section to skip the `gpt-realtime-whisper` transcription pass on the source side.
+- A 1-hour Zoom meeting with translation only ≈ `60 * 0.034`.
+- Source captions add a rough `60 * 0.017`.
+- For long meetings, consider toggling **Show source captions** off to skip the `gpt-realtime-whisper` transcription pass on the source side.
 
-The app does **not** do its own metering. Your OpenAI dashboard is the source-of-truth for spend.
+The app now shows a live timer, rough estimate, warning threshold, and optional auto-stop. This is not billing metering. Your OpenAI dashboard is the source-of-truth for spend.
 
 ## Latency reality
 
@@ -59,9 +60,9 @@ If OpenAI adds more, update both `server/src/config/languages.ts` and `client/sr
 | Edge ≥120      | ✅     | ✅          | Supported   |
 | Brave (latest) | ✅     | ✅          | Likely (untested) |
 | Firefox        | ✅     | partial (116+) | Not supported in v1 |
-| Safari         | ✅     | ❌          | Not supported   |
+| Safari         | ✅     | partial / version-dependent | Not supported in v1 |
 
-`setSinkId` is the single hard requirement. Without it the translated audio cannot be routed to the virtual cable.
+`setSinkId` is the single hard requirement. Without it the translated audio cannot be routed to the virtual cable. Firefox/Safari are treated as unvalidated until real cable routing tests pass.
 
 ## Known model limitations
 
@@ -77,6 +78,7 @@ If OpenAI adds more, update both `server/src/config/languages.ts` and `client/sr
 - API keys (env or in-app) live on your machine only.
 - Translated audio + captions never leave your computer except for the encrypted WebRTC stream OpenAI returns to play locally.
 - The Debug panel logs are local; the **Copy debug bundle** action redacts API keys and never includes audio.
+- Transcript export is separate from the debug bundle and only happens when you click export.
 
 ---
 

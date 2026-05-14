@@ -10,11 +10,14 @@ export interface DevicePickerOptions {
   initialOutputId?: string;
   onMicChange: (deviceId: string) => void;
   onOutputChange: (deviceId: string) => void;
+  onDevicesChanged?: (devices: DeviceLists) => void;
 }
 
 export interface DevicePickerHandle {
   rootEl: HTMLElement;
   refresh(): Promise<void>;
+  setSelections(micDeviceId: string, outputDeviceId: string): Promise<void>;
+  devices(): DeviceLists;
   destroy(): void;
 }
 
@@ -32,6 +35,7 @@ export function createDevicePickers(opts: DevicePickerOptions): DevicePickerHand
 
   let currentMicId = opts.initialMicId ?? "";
   let currentOutId = opts.initialOutputId ?? "";
+  let lastDevices: DeviceLists = { inputs: [], outputs: [] };
 
   async function refresh() {
     let devices: DeviceLists;
@@ -41,6 +45,8 @@ export function createDevicePickers(opts: DevicePickerOptions): DevicePickerHand
       console.warn("[device-pickers] enumerate failed", err);
       return;
     }
+    lastDevices = devices;
+    opts.onDevicesChanged?.(devices);
     populate(micField.select, devices.inputs, currentMicId);
     populate(outField.select, devices.outputs, currentOutId);
     if (micField.select.value && micField.select.value !== currentMicId) {
@@ -60,6 +66,12 @@ export function createDevicePickers(opts: DevicePickerOptions): DevicePickerHand
   return {
     rootEl: root,
     refresh,
+    async setSelections(micDeviceId, outputDeviceId) {
+      currentMicId = micDeviceId;
+      currentOutId = outputDeviceId;
+      await refresh();
+    },
+    devices: () => lastDevices,
     destroy: () => unsubscribe(),
   };
 }

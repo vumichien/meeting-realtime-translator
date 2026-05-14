@@ -1,5 +1,6 @@
 // Typed localStorage wrapper.
 // Keys are namespaced with `mt.` prefix.
+import type { MeetingProfile } from "./lib/meeting-profiles";
 
 export interface SettingsStore {
   "mt.target_lang": string;
@@ -12,6 +13,10 @@ export interface SettingsStore {
   "mt.debug_panel_open": boolean;
   // "auto" resolves at session start from device label; else explicit env.
   "mt.mic_env": "auto" | "headset" | "laptop" | "room";
+  "mt.meeting_profiles": MeetingProfile[];
+  "mt.active_profile_id": string;
+  "mt.session_warning_minutes": number;
+  "mt.session_auto_stop_minutes": number;
 }
 
 export type SettingsKey = keyof SettingsStore;
@@ -26,6 +31,10 @@ export const DEFAULT_SETTINGS: SettingsStore = {
   "mt.captions_flush_on_punctuation": true,
   "mt.debug_panel_open": false,
   "mt.mic_env": "auto",
+  "mt.meeting_profiles": [],
+  "mt.active_profile_id": "",
+  "mt.session_warning_minutes": 30,
+  "mt.session_auto_stop_minutes": 0,
 };
 
 export interface Settings {

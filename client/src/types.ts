@@ -30,6 +30,8 @@ export type ConnectionStateSnapshot = {
   iceConnectionState: RTCIceConnectionState;
 };
 
+export type { SessionIssue, SessionIssueCode } from "./lib/session-error-messages";
+
 export interface SessionHandle {
   /** Stop the session and release all resources. Idempotent. */
   stop(): void;

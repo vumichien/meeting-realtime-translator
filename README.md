@@ -23,7 +23,7 @@ If this helps your meetings feel a little less impossible, please hit Star on Gi
 - Captures your real microphone, streams it to OpenAI Realtime Translation over WebRTC, then plays the translated audio into a virtual audio cable that Zoom or Google Meet treats as your microphone.
 - Shows side-by-side captions: source (what you said) and translation (what listeners hear).
 - Supports 13 target languages out of the box.
-- Includes a local-only debug panel so you can see connection state, latency, VU meters, and event flow without DevTools.
+- Includes Setup Doctor, local transcript export, meeting profiles, cost guardrails, and a redacted debug bundle for support.
 
 ## Audio routing flow
 
@@ -95,6 +95,7 @@ On Windows the names feel backwards at first: Babel Mic plays into **CABLE Input
      - macOS: `BlackHole 2ch`
      - Linux: `meeting-translator`
    - Pick a **Target language**.
+   - Run **Setup Doctor** before a real meeting.
    - Click **Start translating**.
    - Speak in any supported source language; the meeting hears your target language.
 
@@ -152,6 +153,8 @@ meeting-auto-translate/
 | Mic environment       | App main controls            | `Auto` (detects headset / laptop / room) |
 | Caption flush idle ms | App Advanced section         | `1500` |
 | Caption flush on punctuation | App Advanced section  | On |
+| Cost warning threshold | App guardrails              | `30` minutes |
+| Auto-stop threshold    | App guardrails              | Off (`0`) |
 
 ## License
 

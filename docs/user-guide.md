@@ -64,10 +64,21 @@ You can rerun the wizard later from **Help → Run setup wizard again**.
 1. Open Babel Mic.
 2. In Babel Mic, pick your real microphone as **Source mic**.
 3. In Babel Mic, pick the cable playback side as **Output device**.
-4. Pick the target language.
-5. Click **Start translating**.
-6. In Zoom or Meet, keep **Microphone** set to the cable recording side.
-7. In Zoom or Meet, keep **Speaker** set to your headphones or speakers.
+4. Click **Run check** in **Setup Doctor**. Fix anything marked **Needs action** before the call.
+5. Pick the target language.
+6. Click **Start translating**.
+7. In Zoom or Meet, keep **Microphone** set to the cable recording side.
+8. In Zoom or Meet, keep **Speaker** set to your headphones or speakers.
+
+## Meeting Profiles
+
+Use **Meeting profiles** to save recurring setups: target language, mic environment, source mic, and Babel Mic output. Click **Save current** after a working setup. If a saved device is missing later, Babel Mic applies the profile and asks you to reselect that device.
+
+## Transcripts and Support
+
+- **Export MD/TXT** saves source and translated captions locally after a session. Export only when you intend to keep meeting text.
+- **Copy debug bundle** stays local until you paste it. It includes redacted setup/session diagnostics, not audio or transcript text.
+- The session timer and cost estimate are guardrails only. Your OpenAI dashboard is billing source of truth.
 
 ## Uninstall
 
@@ -84,6 +95,9 @@ Install VB-CABLE on Windows or configure a PipeWire null sink on Linux, then unp
 
 **Zoom hears silence.**
 Check that Zoom microphone is the cable recording side, not your real microphone. On Windows this is `CABLE Output`, while Babel Mic output must be `CABLE Input`.
+
+**Setup Doctor says browser routing is unvalidated.**
+Use Chrome or Edge for real meetings. Firefox/Safari output routing is not promised until virtual cable tests pass.
 
 **I hear the translated voice on my speakers.**
 Set Babel Mic output to the cable playback side, not your headphones. In the meeting app, headphones belong in **Speaker**, not **Microphone**.

@@ -8,6 +8,7 @@ Symptom-based lookup. If a problem isn't listed, open an issue with output from 
 - [Server: missing OPENAI_API_KEY](#server-missing-openai_api_key)
 - [Browser: setSinkId unsupported](#browser-setsinkid-unsupported)
 - [Output device dropdown empty](#output-device-dropdown-empty)
+- [Setup Doctor shows Needs action](#setup-doctor-shows-needs-action)
 - [Virtual cable not in output list](#virtual-cable-not-in-output-list)
 - [Zoom hears nothing](#zoom-hears-nothing)
 - [Zoom hears your original (un-translated) voice](#zoom-hears-your-original-un-translated-voice)
@@ -16,6 +17,8 @@ Symptom-based lookup. If a problem isn't listed, open an issue with output from 
 - [Audio plays through speakers instead of the cable](#audio-plays-through-speakers-instead-of-the-cable)
 - [`/session` returns 401](#session-returns-401)
 - [Upstream returns 429 (rate limit)](#upstream-returns-429-rate-limit)
+- [Mic disconnected during a session](#mic-disconnected-during-a-session)
+- [Output routing failed during a session](#output-routing-failed-during-a-session)
 - [Translation cuts during target-language words](#translation-cuts-during-target-language-words)
 - [High latency (>5s)](#high-latency-5s)
 - [Echo for other participants](#echo-for-other-participants)
@@ -44,14 +47,20 @@ Then try again.
 ### Browser: setSinkId unsupported
 
 **Symptom:** Sticky banner: "This browser doesn't support setSinkId".
-**Cause:** Firefox / Safari (Firefox 116+ added support but routing reliability varies; Safari has no support).
-**Fix:** Use Chrome or Edge (≥120). Firefox is left out of the v1 support matrix on purpose.
+**Cause:** Output routing API missing or not validated for cable routing.
+**Fix:** Use Chrome or Edge (≥120). Firefox/Safari remain unvalidated for real virtual-cable meetings.
 
 ### Output device dropdown empty
 
 **Symptom:** No devices listed in the output picker.
 **Cause:** Microphone permission not granted yet — without permission, the browser hides device labels and IDs.
 **Fix:** Click **Allow** when Chrome asks for mic access; reload if you previously dismissed the prompt. Open `chrome://settings/content/microphone` to undo a block.
+
+### Setup Doctor shows Needs action
+
+**Symptom:** Setup Doctor marks browser routing, mic signal, output, or virtual cable as **Needs action**.
+**Cause:** The pre-meeting check could not confirm safe routing.
+**Fix:** Follow the row detail. Common fixes: allow mic permission, speak briefly during mic signal check, pick the `★` virtual cable output, or switch to Chrome/Edge.
 
 ### Virtual cable not in output list
 
@@ -104,6 +113,18 @@ Then try again.
 **Symptom:** Banner: "Session mint failed: ... rate limit".
 **Cause:** OpenAI account hit a per-minute limit.
 **Fix:** Wait 60 seconds and retry. For sustained use, request a higher limit on your OpenAI account.
+
+### Mic disconnected during a session
+
+**Symptom:** Babel Mic stops and says the microphone disconnected.
+**Cause:** Browser mic tracks end when a USB/Bluetooth mic is unplugged or muted at device level.
+**Fix:** Reconnect the mic or choose another **Source mic**, then click **Start translating**.
+
+### Output routing failed during a session
+
+**Symptom:** Babel Mic says output routing failed or the meeting stops hearing translated audio.
+**Cause:** The selected output disappeared or `setSinkId()` rejected the device.
+**Fix:** Re-pick the virtual cable playback side, run Setup Doctor, then retry.
 
 ### Translation cuts during target-language words
 

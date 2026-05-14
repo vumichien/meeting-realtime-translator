@@ -16,6 +16,7 @@ export interface MintOptions {
   transcribeSource: boolean;
   apiKey: string;
   noiseReduction?: NoiseReductionType;
+  requestId: string;
 }
 
 export interface MintResult {
@@ -30,6 +31,8 @@ export interface MintFailure {
   status: number;
   errorCode: string;
   message: string;
+  requestId: string;
+  upstreamRequestId?: string;
 }
 
 export async function mintTranslationClientSecret(
@@ -60,6 +63,7 @@ export async function mintTranslationClientSecret(
       headers: {
         Authorization: `Bearer ${opts.apiKey}`,
         "Content-Type": "application/json",
+        "X-Client-Request-Id": opts.requestId,
       },
       body: JSON.stringify({ session: sessionConfig }),
     });
@@ -69,9 +73,11 @@ export async function mintTranslationClientSecret(
       status: 502,
       errorCode: "upstream_unreachable",
       message: err instanceof Error ? err.message : "fetch failed",
+      requestId: opts.requestId,
     };
   }
 
+  const upstreamRequestId = response.headers.get("x-request-id") ?? undefined;
   const text = await response.text();
   let json: unknown;
   try {
@@ -82,6 +88,8 @@ export async function mintTranslationClientSecret(
       status: response.status,
       errorCode: "upstream_bad_json",
       message: `non-JSON body from upstream (status ${response.status})`,
+      requestId: opts.requestId,
+      upstreamRequestId,
     };
   }
 
@@ -93,8 +101,10 @@ export async function mintTranslationClientSecret(
     return {
       ok: false,
       status: response.status,
-      errorCode: "upstream_failed",
+      errorCode: classifyUpstreamFailure(response.status, message),
       message,
+      requestId: opts.requestId,
+      upstreamRequestId,
     };
   }
 
@@ -105,6 +115,8 @@ export async function mintTranslationClientSecret(
       status: 500,
       errorCode: "missing_client_secret",
       message: "Upstream response did not contain a client_secret",
+      requestId: opts.requestId,
+      upstreamRequestId,
     };
   }
 
@@ -114,6 +126,15 @@ export async function mintTranslationClientSecret(
     expires_at: secretValue.expires_at,
     raw: json,
   };
+}
+
+function classifyUpstreamFailure(status: number, message: string): string {
+  const lower = message.toLowerCase();
+  if (status === 401 || status === 403) return "invalid_api_key";
+  if (status === 429) return "rate_limited";
+  if (status >= 500) return "upstream_unreachable";
+  if (lower.includes("api key")) return "invalid_api_key";
+  return "upstream_failed";
 }
 
 interface ExtractedSecret {

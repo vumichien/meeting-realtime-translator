@@ -1,5 +1,10 @@
 // SDP exchange with the OpenAI Realtime Translations call endpoint.
 // Cookbook reference: openai.md §"Open the WebRTC translation session".
+import {
+  makeSessionIssue,
+  SessionIssueError,
+  type SessionIssueCode,
+} from "./lib/session-error-messages";
 
 const TRANSLATION_CALL_URL =
   "https://api.openai.com/v1/realtime/translations/calls";
@@ -26,8 +31,10 @@ export async function exchangeSdp(args: {
 
   if (!response.ok) {
     const body = await response.text().catch(() => "");
-    throw new Error(
-      `SDP exchange failed: ${response.status} ${response.statusText}${body ? ` — ${body.slice(0, 200)}` : ""}`,
+    throw new SessionIssueError(
+      makeSessionIssue(response.status === 429 ? "rate_limited" : "webrtc_failed", {
+        message: `SDP exchange failed: ${response.status} ${response.statusText}${body ? ` — ${body.slice(0, 200)}` : ""}`,
+      }),
     );
   }
 
@@ -76,8 +83,13 @@ export async function mintSession(args: {
   }
 
   if (!response.ok) {
-    const msg = json?.message ?? json?.error ?? `status ${response.status}`;
-    throw new Error(`Session mint failed: ${msg}`);
+    const code = normalizeIssueCode(json?.error, response.status);
+    throw new SessionIssueError(makeSessionIssue(code, {
+      message: json?.message ?? `Session mint failed: status ${response.status}`,
+      requestId: typeof json?.request_id === "string" ? json.request_id : undefined,
+      upstreamRequestId:
+        typeof json?.upstream_request_id === "string" ? json.upstream_request_id : undefined,
+    }));
   }
 
   if (!json.client_secret || typeof json.client_secret !== "string") {
@@ -88,6 +100,14 @@ export async function mintSession(args: {
     client_secret: json.client_secret,
     expires_at: typeof json.expires_at === "number" ? json.expires_at : null,
   };
+}
+
+function normalizeIssueCode(value: unknown, status: number): SessionIssueCode {
+  if (value === "no_api_key") return "missing_api_key";
+  if (value === "invalid_api_key") return "invalid_api_key";
+  if (value === "rate_limited" || status === 429) return "rate_limited";
+  if (value === "upstream_unreachable") return "upstream_unreachable";
+  return "unknown";
 }
 
 function getSessionEndpoint(): string {

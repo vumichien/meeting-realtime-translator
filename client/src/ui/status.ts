@@ -1,9 +1,12 @@
+import type { SessionIssue } from "../lib/session-error-messages";
+
 export type StatusKind = "idle" | "connecting" | "connected" | "failed" | "closed";
 
 export interface StatusBar {
   rootEl: HTMLElement;
   setStatus(kind: StatusKind, label?: string): void;
   showError(message: string, opts?: { sticky?: boolean }): void;
+  showIssue(issue: SessionIssue, opts?: { onRetry?: () => void; onSetup?: () => void }): void;
   clearError(): void;
 }
 
@@ -55,6 +58,29 @@ export function createStatusBar(): StatusBar {
         dismissTimer = window.setTimeout(() => clearError(), 8000);
       }
     },
+    showIssue(issue, opts) {
+      banner.hidden = false;
+      banner.textContent = "";
+      banner.dataset.sticky = "true";
+      if (dismissTimer) window.clearTimeout(dismissTimer);
+      const title = document.createElement("strong");
+      title.textContent = issue.title;
+      const copy = document.createElement("span");
+      const suffix = issue.requestId ? ` Request ${issue.requestId}.` : "";
+      copy.textContent = ` ${issue.message} ${issue.fix}${suffix}`;
+      banner.append(title, copy);
+      if (issue.retryable && opts?.onRetry) banner.append(actionButton("Retry", opts.onRetry));
+      if (opts?.onSetup) banner.append(actionButton("Run Setup Doctor", opts.onSetup));
+    },
     clearError,
   };
+}
+
+function actionButton(label: string, onClick: () => void): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "status-action";
+  button.textContent = label;
+  button.addEventListener("click", onClick);
+  return button;
 }

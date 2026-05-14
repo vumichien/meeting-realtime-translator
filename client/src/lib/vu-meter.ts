@@ -71,3 +71,26 @@ export function createVuMeter(track: MediaStreamTrack): VuMeter {
     },
   };
 }
+
+export async function sampleMicSignal(
+  track: MediaStreamTrack,
+  durationMs = 900,
+  threshold = 0.012,
+): Promise<{ peak: number; hasSignal: boolean }> {
+  const meter = createVuMeter(track);
+  let peak = 0;
+  meter.start();
+  const started = performance.now();
+  return new Promise((resolve) => {
+    const sample = () => {
+      peak = Math.max(peak, meter.level());
+      if (performance.now() - started >= durationMs) {
+        meter.stop();
+        resolve({ peak, hasSignal: peak >= threshold });
+        return;
+      }
+      window.requestAnimationFrame(sample);
+    };
+    sample();
+  });
+}

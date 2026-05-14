@@ -1,5 +1,20 @@
 # Development Roadmap
 
+## User Support Functions Update
+
+**Updated:** 2026-05-14
+
+The `plans/260514-1528-user-support-functions/` plan is implemented as a support/reliability release:
+
+- Setup Doctor for pre-meeting browser/device/routing checks.
+- Specific recovery copy for API key, rate limit, mic, output routing, and WebRTC failures.
+- Debug bundle v2 with redacted setup/session diagnostics and request IDs.
+- Local transcript Markdown/TXT export.
+- Meeting profiles stored locally.
+- Session timer, estimate-only cost guardrails, warning threshold, optional auto-stop.
+- Browser support validation report keeps Firefox/Safari unvalidated.
+- Listener Mode researched and deferred to a dedicated MVP plan.
+
 ## v0.1.0 Completion Summary
 
 **Release date:** 2026-05-11
@@ -118,7 +133,7 @@ Planned features + polish for public release:
 | Unidirectional translation | Other speakers not translated | Phase 12 (v1.0) |
 | Style-matched, not cloned | Translated voice not identical | Phase 13 (v1.0) |
 | Code-switching produces silence | Mixed-language utterances fail | Phase 14 (v1.0) |
-| Firefox/Safari unsupported | ~20% browser share locked out | Phase 17 (TBD) |
+| Firefox/Safari unvalidated | Output routing may work by API but real cable routing not proven | Phase 17 (TBD) |
 | No formal test suite | Regression risk on updates | Phase 15 (v1.0) |
 | Limited Linux distro testing | PipeWire quirks undocumented | Phase 16 (v1.0) |
 | Postinstall device detection | Users must manually configure Zoom | Phase 19 (backlog) |

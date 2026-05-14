@@ -9,6 +9,7 @@ const serverUrl =
 
 contextBridge.exposeInMainWorld("electron", {
   serverUrl,
+  appVersion: process.env.npm_package_version ?? "",
   apiKey: {
     get: () => ipcRenderer.invoke("apiKey:get"),
     set: (value) => ipcRenderer.invoke("apiKey:set", value),

@@ -4,6 +4,7 @@ declare global {
   interface Window {
     electron?: {
       readonly serverUrl?: string;
+      readonly appVersion?: string;
       readonly apiKey?: {
         get(): Promise<string | null>;
         set(value: string): Promise<void>;

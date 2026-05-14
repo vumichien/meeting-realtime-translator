@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { randomUUID } from "node:crypto";
 import rateLimit from "express-rate-limit";
 import { isAllowedLang, ALLOWED_LANGS } from "../config/languages.js";
 import {
@@ -11,7 +12,13 @@ const sessionLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "rate_limited", message: "Too many session requests — try again in a minute." },
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: "rate_limited",
+      request_id: randomUUID(),
+      message: "Too many session requests — try again in a minute.",
+    });
+  },
 });
 
 // Closed enum of mic envs the client may send. Mapped to noise_reduction.type.
@@ -26,10 +33,12 @@ export function createSessionRouter(envApiKey: string | undefined) {
 
   router.post("/session", sessionLimiter, async (req, res) => {
     const { targetLanguage, transcribeSource, micEnv } = req.body ?? {};
+    const requestId = randomUUID();
 
     if (!isAllowedLang(targetLanguage)) {
       return res.status(400).json({
         error: "invalid_target_language",
+        request_id: requestId,
         message: `targetLanguage must be one of: ${ALLOWED_LANGS.join(", ")}`,
       });
     }
@@ -39,6 +48,7 @@ export function createSessionRouter(envApiKey: string | undefined) {
     if (!apiKey) {
       return res.status(401).json({
         error: "no_api_key",
+        request_id: requestId,
         message:
           "No OpenAI API key. Set OPENAI_API_KEY in .env or paste a key in the app.",
       });
@@ -57,6 +67,7 @@ export function createSessionRouter(envApiKey: string | undefined) {
       transcribeSource: wantTranscription,
       apiKey,
       noiseReduction,
+      requestId,
     });
 
     if (!result.ok) {
@@ -66,6 +77,8 @@ export function createSessionRouter(envApiKey: string | undefined) {
       return res.status(result.status >= 400 ? result.status : 502).json({
         error: result.errorCode,
         message: result.message,
+        request_id: result.requestId,
+        upstream_request_id: result.upstreamRequestId,
       });
     }
 

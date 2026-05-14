@@ -150,8 +150,8 @@ the embedded random-port server directly.
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                       app.ts (main)                            │
-│                  Session lifecycle orchestration                │
-│                  Event routing to UI components                 │
+│                  App wiring and UI mount points                 │
+│                  Event routing to controllers                   │
 │                                                                 │
 │  ┌──────────────────┐  ┌───────────────────┐  ┌─────────────┐ │
 │  │ translation-     │  │ audio-devices.ts  │  │settings.ts  │ │
@@ -176,8 +176,15 @@ the embedded random-port server directly.
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 
-     lib/* (utilities, no side effects)
+     lib/* (utilities and focused controllers)
      ├─ webrtc-sdp.ts (SDP answer parsing)
+     ├─ session-controller.ts (start/stop/recovery orchestration)
+     ├─ setup-doctor.ts (pre-meeting local readiness checks)
+     ├─ session-error-messages.ts (stable user-facing issue codes)
+     ├─ transcript-store.ts / transcript-export.ts (local caption export)
+     ├─ meeting-profile-controller.ts / meeting-profiles.ts (local profile state)
+     ├─ session-cost-estimate.ts (estimate-only guardrails)
+     ├─ browser-capabilities.ts (runtime routing support messaging)
      ├─ event-buffer.ts (circular queue for telemetry)
      ├─ vu-meter.ts (audio analyser node)
      ├─ debug-bundle.ts (redacted session snapshot)
@@ -208,8 +215,9 @@ the embedded random-port server directly.
 │  │   client_secret: { value: "cs_...", expires_at } │
 │  │ }                                                 │
 │  │                                                    │
-│  └─ Error (401): {                                   │
-│      error: "no_api_key" | "invalid_key"            │
+│  └─ Error: {                                         │
+│      error: "no_api_key" | "invalid_api_key" | ...  │
+│      request_id, upstream_request_id?               │
 │    }                                                 │
 │                                                        │
 │  CORS: Pinned to CLIENT_ORIGIN (default: localhost)  │
@@ -250,6 +258,9 @@ interface Settings {
   sourceTranscription: boolean
   captionFlushIdleMs: number
   captionFlushOnPunctuation: boolean
+  meetingProfiles: MeetingProfile[]
+  sessionWarningMinutes: number
+  sessionAutoStopMinutes: number // 0 = off
 }
 ```
 
@@ -263,6 +274,8 @@ interface Settings {
 | **Shared AudioContext singleton** | Browser resource constraint. Context reused across session cycles safely. |
 | **Settings in localStorage** | Simple, no backend persistence. Trade-off: TLS not required for local backend. |
 | **Debug panel inline in app** | No DevTools dependency. Real-time metrics + export for bug reports. |
+| **Support bundle excludes transcripts** | Debug data helps support without silently exporting meeting content. |
+| **Profiles local-only** | Device labels/IDs can be personal; no cloud sync. |
 | **13-language allowlist** | OpenAI's early Realtime Translation supports these; others error. Hardcoded to fail fast. |
 
 ## Performance Considerations
@@ -280,6 +293,7 @@ interface Settings {
 - **API key confinement:** Server-only. Browser never sees raw key.
 - **CORS origin pinning:** Only `localhost:5173` (or configured `CLIENT_ORIGIN`) can request `/session`.
 - **Redaction on export:** Debug bundle strips `Authorization`, `apiKey`, `client_secret`, tokens, and heuristically suspicious strings before export.
+- **Transcript separation:** Transcript Markdown/TXT export is explicit and never included in debug bundles.
 - **Local-only assumption:** No public deployment. If remote, API key in `.env` is at risk.
 - **XSS prevention:** Captions use `textContent`, never `innerHTML`.
 

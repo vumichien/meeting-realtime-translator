@@ -10,6 +10,11 @@ import {
   type MicEnv,
   type MicEnvSetting,
 } from "./lib/mic-env-detect";
+import {
+  makeSessionIssue,
+  SessionIssueError,
+  type SessionIssue,
+} from "./lib/session-error-messages";
 
 export interface StartSessionOptions {
   targetLanguage: string;
@@ -21,15 +26,14 @@ export interface StartSessionOptions {
   onEvent?: (event: SessionEvent) => void;
   onRawEvent?: (raw: any, ts: number) => void;
   onStateChange?: (snapshot: ConnectionStateSnapshot) => void;
+  onRecoverableIssue?: (issue: SessionIssue) => void;
   onError?: (err: Error) => void;
 }
 
 export async function startSession(opts: StartSessionOptions): Promise<SessionHandle> {
   const transcribeSource = opts.transcribeSource !== false;
-
   // Resolve mic env: explicit override wins; otherwise sniff the device label.
   const resolvedMicEnv = await resolveMicEnv(opts.micEnv ?? "auto", opts.micDeviceId);
-
   // 1. Mint short-lived client secret via local backend.
   const minted = await mintSession({
     targetLanguage: opts.targetLanguage,
@@ -37,7 +41,6 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
     apiKey: opts.apiKey,
     micEnv: resolvedMicEnv,
   });
-
   // 2. Capture mic. Constraints per env -- avoid double-DSP with model's NR.
   const constraints = micConstraintsFor(resolvedMicEnv);
   const micStream = await navigator.mediaDevices.getUserMedia({
@@ -49,6 +52,16 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
     },
   });
   const micTrack = micStream.getAudioTracks()[0] ?? null;
+  if (micTrack) {
+    micTrack.addEventListener("ended", () =>
+      opts.onRecoverableIssue?.(makeSessionIssue("mic_disconnected")),
+    );
+    micTrack.addEventListener("mute", () =>
+      opts.onRecoverableIssue?.(makeSessionIssue("mic_disconnected", {
+        message: "The active microphone stopped sending audio.",
+      })),
+    );
+  }
 
   // 3. Set up peer connection.
   const pc = new RTCPeerConnection();
@@ -71,7 +84,11 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
       (audio as any)
         .setSinkId(opts.outputDeviceId)
         .catch((err: unknown) =>
-          opts.onError?.(toError(err, "setSinkId failed on initial routing")),
+          opts.onRecoverableIssue?.(
+            makeSessionIssue("output_route_failed", {
+              message: toError(err, "setSinkId failed on initial routing").message,
+            }),
+          ),
         );
     }
   };
@@ -93,24 +110,33 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
   };
 
   // 6. Connection state propagation.
-  const emitState = () =>
-    opts.onStateChange?.({
+  const emitState = () => {
+    const snapshot = {
       connectionState: pc.connectionState,
       iceConnectionState: pc.iceConnectionState,
-    });
+    };
+    opts.onStateChange?.(snapshot);
+    if (pc.connectionState === "failed") {
+      opts.onRecoverableIssue?.(makeSessionIssue("webrtc_failed"));
+    }
+  };
   pc.onconnectionstatechange = emitState;
   pc.oniceconnectionstatechange = emitState;
   emitState();
 
   // 7. SDP exchange.
+  let stopped = false;
   try {
     await exchangeSdp({ pc, clientSecret: minted.client_secret });
   } catch (err) {
     cleanup();
-    throw err;
+    throw err instanceof SessionIssueError
+      ? err
+      : new SessionIssueError(makeSessionIssue("webrtc_failed", {
+          message: toError(err, "SDP exchange failed").message,
+        }));
   }
 
-  let stopped = false;
   function cleanup() {
     if (stopped) return;
     stopped = true;

@@ -12,8 +12,10 @@ export interface ControlsCallbacks {
 
 export interface ControlsHandle {
   rootEl: HTMLElement;
+  settingsEl: HTMLElement;
   setRunning(running: boolean): void;
   setBusy(busy: boolean): void;
+  syncFromSettings(): void;
 }
 
 export function createControls(
@@ -29,31 +31,31 @@ export function createControls(
         <span>Target language</span>
         <select id="ctrl-lang"></select>
       </label>
-      <label class="control-field">
-        <span>Mic environment</span>
-        <select id="ctrl-mic-env">
-          <option value="auto">Auto (detect)</option>
-          <option value="headset">Headset / close mic</option>
-          <option value="laptop">Laptop built-in</option>
-          <option value="room">Conference / room mic</option>
-        </select>
-      </label>
       <button type="button" id="ctrl-start" class="primary-btn">Start translating</button>
       <button type="button" id="ctrl-stop" class="secondary-btn" disabled>Stop</button>
       <button type="button" id="ctrl-clear" class="link-btn">Clear captions</button>
     </div>
-    <div class="controls-row keyrow">
-      <label class="control-field grow">
-        <span>OpenAI API key (optional — overrides server .env)</span>
-        <input type="password" id="ctrl-key" placeholder="sk-..." autocomplete="off" spellcheck="false" />
-      </label>
-      <label class="control-toggle">
-        <input type="checkbox" id="ctrl-transcribe" />
-        <span>Show source captions (extra cost)</span>
-      </label>
-    </div>
-    <details class="controls-advanced">
-      <summary>Advanced</summary>
+    <details class="controls-settings">
+      <summary>Settings</summary>
+      <div class="controls-row keyrow">
+        <label class="control-field grow">
+          <span>OpenAI API key (optional — overrides server .env)</span>
+          <input type="password" id="ctrl-key" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        </label>
+        <label class="control-field">
+          <span>Mic environment</span>
+          <select id="ctrl-mic-env">
+            <option value="auto">Auto (detect)</option>
+            <option value="headset">Headset / close mic</option>
+            <option value="laptop">Laptop built-in</option>
+            <option value="room">Conference / room mic</option>
+          </select>
+        </label>
+        <label class="control-toggle">
+          <input type="checkbox" id="ctrl-transcribe" />
+          <span>Show source captions (extra cost)</span>
+        </label>
+      </div>
       <div class="controls-row">
         <label class="control-field">
           <span>Caption flush idle (ms)</span>
@@ -64,6 +66,7 @@ export function createControls(
           <span>Flush captions on punctuation</span>
         </label>
       </div>
+      <div class="controls-extra-settings"></div>
     </details>
   `;
 
@@ -140,6 +143,14 @@ export function createControls(
 
   return {
     rootEl: root,
+    settingsEl: root.querySelector<HTMLElement>(".controls-extra-settings")!,
+    syncFromSettings() {
+      langSelect.value = settings.get("mt.target_lang");
+      transcribeBox.checked = settings.get("mt.transcribe_source");
+      flushIdle.value = String(settings.get("mt.captions_flush_idle_ms"));
+      flushPunct.checked = settings.get("mt.captions_flush_on_punctuation");
+      micEnvSelect.value = settings.get("mt.mic_env");
+    },
     setRunning(running) {
       startBtn.disabled = running;
       stopBtn.disabled = !running;

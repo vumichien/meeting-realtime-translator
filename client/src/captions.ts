@@ -1,4 +1,5 @@
 import type { SessionEvent } from "./types";
+import type { TranscriptSegmentKind } from "./lib/transcript-store";
 
 export interface CaptionsFlushOptions {
   idleMs: number;
@@ -10,6 +11,7 @@ export interface CaptionsViewOptions {
   /** When false, source pane shows a disabled placeholder. */
   transcribeSource: boolean;
   maxLines?: number;
+  onFinalize?: (kind: TranscriptSegmentKind, text: string) => void;
 }
 
 export interface CaptionsView {
@@ -63,9 +65,9 @@ export function createCaptionsView(options: CaptionsViewOptions): CaptionsView {
     push(event) {
       if (event.type === "session.input_transcript.delta") {
         if (!opts.transcribeSource) return;
-        appendDelta(sourcePane, (event as { delta: string }).delta, maxLines, opts.flush);
+        appendDelta(sourcePane, "source", (event as { delta: string }).delta, maxLines, opts);
       } else if (event.type === "session.output_transcript.delta") {
-        appendDelta(targetPane, (event as { delta: string }).delta, maxLines, opts.flush);
+        appendDelta(targetPane, "target", (event as { delta: string }).delta, maxLines, opts);
       }
     },
     clear() {
@@ -116,9 +118,10 @@ function createPane(list: HTMLOListElement): Pane & {
 
 function appendDelta(
   pane: ReturnType<typeof createPane>,
+  kind: TranscriptSegmentKind,
   delta: string,
   maxLines: number,
-  flush: CaptionsFlushOptions,
+  opts: CaptionsViewOptions,
 ) {
   if (!delta) return;
   // Drop any placeholder from a disabled state.
@@ -135,20 +138,28 @@ function appendDelta(
   scrollToBottom(pane.list);
 
   if (pane.flushTimer) window.clearTimeout(pane.flushTimer);
-  if (flush.onPunctuation && PUNCT.test(delta)) {
-    finalizeLine(pane);
+  if (opts.flush.onPunctuation && PUNCT.test(delta)) {
+    finalizeLine(pane, kind, opts.onFinalize);
   } else {
-    pane.flushTimer = window.setTimeout(() => finalizeLine(pane), flush.idleMs);
+    pane.flushTimer = window.setTimeout(
+      () => finalizeLine(pane, kind, opts.onFinalize),
+      opts.flush.idleMs,
+    );
   }
 }
 
-function finalizeLine(pane: ReturnType<typeof createPane>) {
+function finalizeLine(
+  pane: ReturnType<typeof createPane>,
+  kind: TranscriptSegmentKind,
+  onFinalize: CaptionsViewOptions["onFinalize"],
+) {
   if (pane.flushTimer) {
     window.clearTimeout(pane.flushTimer);
     pane.flushTimer = undefined;
   }
   if (pane.current && pane.current.textContent?.trim()) {
     pane.current.classList.add("caption-final");
+    onFinalize?.(kind, pane.current.textContent);
   }
   pane.current = null;
 }

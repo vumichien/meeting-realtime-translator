@@ -4,7 +4,15 @@ All notable changes to Meeting Realtime Translator are documented here.
 
 ## [Unreleased] — 2026-05-14
 
-- No unreleased changes yet.
+### Added
+
+- Added Setup Doctor readiness checks for browser routing, mic signal, output routing, and virtual-cable-like devices.
+- Added recoverable session issue messages for missing/invalid API keys, rate limits, mic disconnects, output routing failures, and WebRTC failures.
+- Added redacted debug bundle v2 context: setup results, last issue, session duration, browser/platform, and safe request IDs.
+- Added local transcript export as Markdown/TXT, separate from debug bundles.
+- Added local meeting profiles for recurring language/device setups.
+- Added session timer, rough cost estimate, warning threshold, and optional auto-stop guardrail.
+- Added browser validation and Listener Mode research reports under the user-support plan.
 
 ## [v0.1.2] — 2026-05-14
 
