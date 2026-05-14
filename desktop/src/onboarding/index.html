@@ -49,29 +49,26 @@
     <template id="step-04">
       <section class="step">
         <h1>Choose devices</h1>
-        <p>Select your real microphone, then send Babel Mic output to the cable playback side. On Windows, choose CABLE Input here.</p>
+        <p>Select your real microphone, then send Babel Mic output to the virtual audio input/playback side.</p>
         <label>Source mic<select data-mic></select></label>
         <label>Babel Mic output device<select data-output></select></label>
-        <label class="checkbox-row"><input type="checkbox" data-heard /> <span>I heard the test tone through the cable</span></label>
+        <label class="checkbox-row"><input type="checkbox" data-routing-confirmed /> <span>My source mic is a real microphone, and Babel Mic output is the virtual audio input/playback device</span></label>
         <div class="actions">
           <button type="button" class="secondary" data-back>Back</button>
-          <button type="button" class="secondary" data-test-audio>Play test tone</button>
           <button type="button" data-next disabled>Next</button>
         </div>
       </section>
     </template>
     <template id="step-05">
       <section class="step">
-        <h1>Point Zoom or Meet at the cable</h1>
+        <h1>Point Zoom or Meet at virtual audio</h1>
         <p>Open your meeting app audio settings. Keep your real mic only in Babel Mic, not in the meeting app.</p>
-        <p>Zoom: Settings -> Audio -> Microphone -> CABLE Output or virtual recording source. Speaker -> headphones or speakers.</p>
-        <p>Google Meet: More options -> Settings -> Audio -> Microphone -> virtual recording source. Speakers -> headphones or speakers.</p>
-        <label class="checkbox-row"><input type="checkbox" data-configured /> <span>I configured my meeting app microphone</span></label>
-        <p>Help improve Babel Mic by sending anonymous setup and session events. Audio, captions, API keys, names, and IP addresses are never sent by the app.</p>
+        <p>Zoom: Settings -> Audio -> Microphone -> virtual audio output or recording source. Speaker -> real headphones or speakers.</p>
+        <p>Google Meet: More options -> Settings -> Audio -> Microphone -> virtual audio output or recording source. Speakers -> real headphones or speakers.</p>
+        <label class="checkbox-row"><input type="checkbox" data-configured /> <span>My meeting app microphone is virtual audio, and speaker output is my real headphones or speakers</span></label>
+        <p>Need more features or setup help? Open a new GitHub issue. If Babel Mic helps, please star the project.</p>
         <div class="actions">
           <button type="button" class="secondary" data-back>Back</button>
-          <button type="button" class="secondary" data-telemetry-no>No thanks</button>
-          <button type="button" class="secondary" data-telemetry-yes>Share anonymous events</button>
           <button type="button" data-next disabled>Finish</button>
         </div>
       </section>

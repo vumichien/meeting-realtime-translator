@@ -1,6 +1,5 @@
 import { detectVirtualCable } from "../cable-detect.js";
 import { wireButtonFeedback } from "./button-feedback.js";
-import { playToneWithFeedback } from "./tone-test.js";
 
 const STEPS = [1, 2, 3, 4, 5] as const;
 
@@ -101,36 +100,24 @@ function wireApiKeyStep() {
 function wireDeviceStep() {
   const mic = app.querySelector<HTMLSelectElement>("[data-mic]")!;
   const output = app.querySelector<HTMLSelectElement>("[data-output]")!;
-  const heard = app.querySelector<HTMLInputElement>("[data-heard]")!;
-  const test = app.querySelector<HTMLButtonElement>("[data-test-audio]")!;
+  const routingConfirmed = app.querySelector<HTMLInputElement>("[data-routing-confirmed]")!;
   const next = app.querySelector<HTMLButtonElement>("[data-next]")!;
-  void populateDevices(mic, output);
-  heard.addEventListener("change", () => {
-    next.disabled = !(mic.value && output.value && heard.checked);
-  });
-  test.addEventListener("click", () => void playToneWithFeedback(test, output.value));
+  const update = () => {
+    next.disabled = !(mic.value && output.value && routingConfirmed.checked);
+  };
+  void populateDevices(mic, output).then(update);
+  mic.addEventListener("change", update);
+  output.addEventListener("change", update);
+  routingConfirmed.addEventListener("change", update);
 }
 
 function wireZoomMeetStep() {
   const done = app.querySelector<HTMLInputElement>("[data-configured]")!;
-  const yes = app.querySelector<HTMLButtonElement>("[data-telemetry-yes]")!;
-  const no = app.querySelector<HTMLButtonElement>("[data-telemetry-no]")!;
   const next = app.querySelector<HTMLButtonElement>("[data-next]")!;
-  let consentChosen = false;
   const update = () => {
-    next.disabled = !(done.checked && consentChosen);
+    next.disabled = !done.checked;
   };
   done.addEventListener("change", () => {
-    update();
-  });
-  yes.addEventListener("click", async () => {
-    await window.electron!.telemetry?.setConsent(true);
-    consentChosen = true;
-    update();
-  });
-  no.addEventListener("click", async () => {
-    await window.electron!.telemetry?.setConsent(false);
-    consentChosen = true;
     update();
   });
 }

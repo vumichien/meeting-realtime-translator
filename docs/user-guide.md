@@ -37,15 +37,16 @@ Babel Mic opens a setup wizard the first time it starts.
 1. **Welcome:** Start the setup.
 2. **Virtual cable:** Install a virtual audio cable. This is a small audio device that lets Zoom or Meet hear Babel Mic.
 3. **OpenAI key:** Paste your OpenAI API key. Babel Mic stores it using your operating system protection.
-4. **Devices in Babel Mic:** Pick your real microphone as **Source mic**. Pick the cable playback side as **Output device**.
+4. **Devices in Babel Mic:** Pick your real microphone as **Source mic**. Pick the virtual audio input/playback side as **Output device**, then confirm the routing.
    - Windows: `CABLE Input (VB-Audio Virtual Cable)`
    - macOS: `BlackHole 2ch`
    - Linux: `meeting-translator`
-5. **Zoom or Meet:** Set the meeting app microphone to the cable recording side.
+5. **Zoom or Meet:** Set the meeting app microphone to virtual audio and confirm the meeting app speaker is your real headphones or speakers.
    - Windows: `CABLE Output (VB-Audio Virtual Cable)`
    - macOS: `BlackHole 2ch`
    - Linux: `Monitor of meeting-translator`
-   Keep the meeting app speaker set to your normal headphones or speakers.
+
+Open a GitHub issue if setup fails or you need a feature. Star the project if Babel Mic helps you.
 
 You can rerun the wizard later from **Help → Run setup wizard again**.
 
