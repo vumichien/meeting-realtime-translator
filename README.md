@@ -3,13 +3,18 @@
 **Non-tech user?** Start with the [Babel Mic desktop user guide](docs/user-guide.md). **Developer?** Keep reading for the browser + local backend workflow. See [changelog](docs/project-changelog.md) for release history.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/vumichien/meeting-realtime-translator?style=social)](https://github.com/vumichien/meeting-realtime-translator/stargazers)
+[![Latest release](https://img.shields.io/github/v/release/vumichien/meeting-realtime-translator?display_name=tag&sort=semver)](https://github.com/vumichien/meeting-realtime-translator/releases)
 [![Node.js ≥ 20](https://img.shields.io/badge/Node.js-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Powered by OpenAI](https://img.shields.io/badge/Powered%20by-OpenAI%20Realtime-412991?logo=openai&logoColor=white)](https://platform.openai.com/docs/guides/realtime)
-[![Chrome / Edge only](https://img.shields.io/badge/Browser-Chrome%20%2F%20Edge-4285F4?logo=googlechrome&logoColor=white)]()
-[![BYO API Key](https://img.shields.io/badge/API%20Key-BYO%20%E2%80%94%20local%20only-orange)]()
+[![Chrome / Edge only](https://img.shields.io/badge/Browser-Chrome%20%2F%20Edge-4285F4?logo=googlechrome&logoColor=white)](#caveats--read-before-installing)
+[![BYO API Key](https://img.shields.io/badge/API%20Key-BYO%20%E2%80%94%20local%20only-orange)](#configuration)
+[![Desktop app](https://img.shields.io/badge/Desktop-Electron-47848F?logo=electron&logoColor=white)](docs/user-guide.md)
 
 > Speak your language in your browser. Zoom / Meet hears you in your meeting's language. Auto-detects 70+ source languages. Powered by OpenAI's `gpt-realtime-translate`. Local-only, BYO key.
+
+If this helps your meetings feel a little less impossible, please hit Star on GitHub. It helps others find the project.
 
 ![Meeting Realtime Translator — intro animation](docs/_images/app-info.gif)
 
@@ -65,8 +70,8 @@ On Windows the names feel backwards at first: Babel Mic plays into **CABLE Input
 
 2. **Clone, install, configure your key**
    ```bash
-   git clone https://github.com/<you>/meeting-auto-translate.git
-   cd meeting-auto-translate
+   git clone https://github.com/vumichien/meeting-realtime-translator.git
+   cd meeting-realtime-translator
    cp .env.example .env
    # edit .env, set OPENAI_API_KEY
    npm install
