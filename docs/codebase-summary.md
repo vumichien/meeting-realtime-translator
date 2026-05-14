@@ -140,3 +140,37 @@ OpenAI Realtime Translation
 ```
 
 See `system-architecture.md` for detailed data flow + session lifecycle.
+
+## v0.2 Additions — Multi-Provider Layer
+
+### Client
+- `client/src/providers/types.ts` — `TranslationProvider`, `ProviderSession`, capabilities.
+- `client/src/providers/registry.ts` — provider id → factory; OpenAI eager, Gemini dynamic-imported.
+- `client/src/providers/openai/webrtc-session.ts` — (moved from `client/src/translation-session.ts`); unchanged behaviour.
+- `client/src/providers/openai/adapter.ts` — thin OpenAI `TranslationProvider` wrapper.
+- `client/src/providers/gemini/adapter.ts` — Gemini Live `TranslationProvider`; spins up worklets, WS, hot-handoff.
+- `client/src/providers/gemini/live-client.ts` — raw WebSocket protocol wrapper (BidiGenerateContent).
+- `client/src/providers/gemini/session-resume.ts` — 13-min hot-handoff state machine.
+- `client/src/providers/gemini/audio-input-worklet.ts` — 48k → 16k PCM16 mic downsampler.
+- `client/src/providers/gemini/audio-output-worklet.ts` — 24k PCM16 → MediaStream output player.
+- `client/src/providers/gemini/audioworklet.d.ts` — ambient typings for AudioWorkletGlobalScope.
+- `client/src/providers/gemini/translation-prompt.ts` — system-instruction builder.
+- `client/src/providers/gemini/caption-mapper.ts` — Gemini events → `CaptionEvent`.
+- `client/src/providers/gemini/ephemeral-token.ts` — calls local backend to mint Live token.
+- `client/src/ui/provider-picker.ts` — radio for active provider in Settings.
+- `client/src/ui/gemini-config.ts` — auth-mode tabs + voice picker + Vertex inputs.
+- `client/src/lib/latency-warning.ts` — 30s rolling-median warning emitter.
+
+### Server
+- `server/src/routes/providers/gemini-ephemeral.ts` — POST `/providers/gemini/ephemeral-token` (AI Studio + Vertex).
+- `server/src/lib/gemini-client.ts` — AI Studio token-mint REST client.
+- `server/src/lib/gemini-auth.ts` — Vertex OAuth token-mint via `google-auth-library`.
+
+### Desktop
+- `desktop/src/secure-store.ts` — extended with v2 `providerKeys` keyring + v1→v2 migration.
+- `desktop/src/ipc-api-key.ts` — added `keyring:get/set/clear` IPC handlers.
+- `desktop/src/window.ts` — CSP for Gemini WS endpoints via `webRequest.onHeadersReceived`.
+
+### Docs
+- `docs/providers.md` — provider comparison + when-to-use cheat sheet.
+

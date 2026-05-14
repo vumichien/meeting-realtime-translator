@@ -1,4 +1,4 @@
-import type { SessionEvent } from "./types";
+import type { SessionEvent, TranscriptDeltaEvent } from "./types";
 import type { TranscriptSegmentKind } from "./lib/transcript-store";
 
 export interface CaptionsFlushOptions {
@@ -33,7 +33,11 @@ export function createCaptionsView(options: CaptionsViewOptions): CaptionsView {
   root.className = "captions";
   root.innerHTML = `
     <div class="caption-pane source">
-      <header><span>Source</span><small>what you said</small></header>
+      <header>
+        <span>Source</span>
+        <small>what you said</small>
+        <span class="caption-lang-chip" hidden></span>
+      </header>
       <ol class="caption-lines"></ol>
     </div>
     <div class="caption-pane target">
@@ -41,6 +45,7 @@ export function createCaptionsView(options: CaptionsViewOptions): CaptionsView {
       <ol class="caption-lines"></ol>
     </div>
   `;
+  const sourceLangChip = root.querySelector(".caption-lang-chip") as HTMLElement;
 
   const sourcePane = createPane(
     root.querySelector(".caption-pane.source ol.caption-lines") as HTMLOListElement,
@@ -65,6 +70,11 @@ export function createCaptionsView(options: CaptionsViewOptions): CaptionsView {
     push(event) {
       if (event.type === "session.input_transcript.delta") {
         if (!opts.transcribeSource) return;
+        const detected = (event as TranscriptDeltaEvent).detectedSourceLang;
+        if (detected) {
+          sourceLangChip.textContent = `Detected: ${detected}`;
+          sourceLangChip.hidden = false;
+        }
         appendDelta(sourcePane, "source", (event as { delta: string }).delta, maxLines, opts);
       } else if (event.type === "session.output_transcript.delta") {
         appendDelta(targetPane, "target", (event as { delta: string }).delta, maxLines, opts);
@@ -73,6 +83,8 @@ export function createCaptionsView(options: CaptionsViewOptions): CaptionsView {
     clear() {
       sourcePane.reset();
       targetPane.reset();
+      sourceLangChip.textContent = "";
+      sourceLangChip.hidden = true;
       applyTranscribeSourcePlaceholder();
     },
     setOptions(partial) {

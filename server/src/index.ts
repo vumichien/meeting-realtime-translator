@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import express from "express";
 import cors from "cors";
 import { createSessionRouter } from "./routes/session.js";
+import { createGeminiEphemeralRouter } from "./routes/providers/gemini-ephemeral.js";
 
 // Load .env from server cwd first, then walk up to the monorepo root.
 // The repo ships a single root-level .env (see .env.example) but server/.env
@@ -29,6 +30,7 @@ if (!CLIENT_ORIGIN) {
 }
 
 const ENV_API_KEY = process.env.OPENAI_API_KEY?.trim() || undefined;
+const ENV_GEMINI_KEY = process.env.GEMINI_API_KEY?.trim() || undefined;
 
 if (!ENV_API_KEY) {
   console.warn(
@@ -45,6 +47,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use(createSessionRouter(ENV_API_KEY));
+app.use(createGeminiEphemeralRouter(ENV_GEMINI_KEY));
 
 const server = app.listen(PORT, HOST, () => {
   const address = server.address();

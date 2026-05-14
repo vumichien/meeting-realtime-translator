@@ -41,6 +41,7 @@ export function recordEventMetrics(
   s: MetricsState,
   type: string,
   ts: number,
+  onLatencySample?: (ms: number) => void,
 ): FilterKind {
   const kind = classifyEventKind(type);
   if (kind === "source") {
@@ -55,6 +56,7 @@ export function recordEventMetrics(
       if (sample >= 0 && sample < 30_000) {
         s.latencySamples.push(sample);
         if (s.latencySamples.length > LATENCY_WINDOW) s.latencySamples.shift();
+        onLatencySample?.(sample);
       }
       s.pendingSourceTs = null;
     }

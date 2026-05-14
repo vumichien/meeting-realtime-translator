@@ -17,6 +17,15 @@ export interface SettingsStore {
   "mt.active_profile_id": string;
   "mt.session_warning_minutes": number;
   "mt.session_auto_stop_minutes": number;
+  // Multi-provider: 'openai' (default) or 'gemini' (phase 02+).
+  "mt.active_provider": "openai" | "gemini";
+  // Gemini-specific config (used only when active provider = gemini).
+  "mt.gemini_auth_mode": "ai-studio" | "vertex";
+  "mt.gemini_voice": "Aoede" | "Puck" | "Charon" | "Kore" | "Fenrir";
+  "mt.gemini_api_key": string;
+  "mt.gemini_service_account_json": string;
+  "mt.gemini_project": string;
+  "mt.gemini_region": string;
 }
 
 export type SettingsKey = keyof SettingsStore;
@@ -35,6 +44,13 @@ export const DEFAULT_SETTINGS: SettingsStore = {
   "mt.active_profile_id": "",
   "mt.session_warning_minutes": 30,
   "mt.session_auto_stop_minutes": 0,
+  "mt.active_provider": "openai",
+  "mt.gemini_auth_mode": "ai-studio",
+  "mt.gemini_voice": "Aoede",
+  "mt.gemini_api_key": "",
+  "mt.gemini_service_account_json": "",
+  "mt.gemini_project": "",
+  "mt.gemini_region": "us-central1",
 };
 
 export interface Settings {
@@ -78,6 +94,9 @@ function encode(value: unknown): string {
 // allowed set; anything else falls back to the default.
 const STRING_UNIONS: Partial<Record<SettingsKey, readonly string[]>> = {
   "mt.mic_env": ["auto", "headset", "laptop", "room"],
+  "mt.active_provider": ["openai", "gemini"],
+  "mt.gemini_auth_mode": ["ai-studio", "vertex"],
+  "mt.gemini_voice": ["Aoede", "Puck", "Charon", "Kore", "Fenrir"],
 };
 
 function decode<K extends SettingsKey>(key: K, raw: string): SettingsStore[K] {

@@ -27,6 +27,10 @@ export interface DebugPanelOptions {
   onToggle: (open: boolean) => void;
   getSetupDoctorResult?: () => SetupDoctorResult | null;
   getSessionDurationMs?: () => number;
+  /** Optional callback fired once per source→target latency observation. */
+  onLatencySample?: (sampleMs: number) => void;
+  /** Optional callback fired when the panel is reset (new session start). */
+  onReset?: () => void;
 }
 
 export interface DebugPanel {
@@ -153,7 +157,7 @@ export function createDebugPanel(opts: DebugPanelOptions): DebugPanel {
       const type = typeof raw?.type === "string" ? raw.type : "unknown";
       const ev: BufferedEvent = { ts, type, payload: raw };
       buffer.push(ev);
-      const kind = recordEventMetrics(metrics, type, ts);
+      const kind = recordEventMetrics(metrics, type, ts, opts.onLatencySample);
       appendLogRow(ev, kind);
     },
     recordState(snapshot) {
@@ -190,6 +194,7 @@ export function createDebugPanel(opts: DebugPanelOptions): DebugPanel {
       lastIssue = null;
       resetMetricsState(metrics);
       logList.innerHTML = "";
+      opts.onReset?.();
     },
   };
 }

@@ -1,5 +1,23 @@
 # Development Roadmap
 
+## v0.2 — Multi-Provider Translation (Gemini Live)
+
+**Updated:** 2026-05-15
+
+Implements `plans/260514-2329-multi-provider-gemini-live/`. Adds Gemini Live behind
+a `TranslationProvider` abstraction; OpenAI Realtime stays the default.
+
+| Phase | Status | Summary |
+|---|---|---|
+| 01 — Provider Abstraction | Done | `TranslationProvider` interface + registry; OpenAI moved into `providers/openai/`. |
+| 02 — Gemini AI Studio Adapter | Done | Live WS + audio worklets; ephemeral token endpoint; dynamic-imported. |
+| 03 — Vertex AI Auth Mode | Done | Service-account JSON → OAuth via `google-auth-library`. |
+| 04 — Session Resume Hot-Handoff | Done | 13-min reconnect using `sessionResumptionUpdate.newHandle`. |
+| 05 — Captions & Telemetry Parity | Done | Detected-source-lang chip + rolling-latency warning banner. |
+| 06 — Settings & First-Run Wizard | Done | Provider picker + Gemini config sub-panel; Start disables when key missing. |
+| 07 — SafeStorage v2 + CSP | Done | `providerKeys` keyring (v1 → v2 migration); CSP extended for Gemini WS. |
+| 08 — Docs Update | Done | `docs/providers.md`, system-architecture refresh, changelog. |
+
 ## User Support Functions Update
 
 **Updated:** 2026-05-14

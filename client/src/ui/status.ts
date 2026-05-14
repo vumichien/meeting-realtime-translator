@@ -8,6 +8,8 @@ export interface StatusBar {
   showError(message: string, opts?: { sticky?: boolean }): void;
   showIssue(issue: SessionIssue, opts?: { onRetry?: () => void; onSetup?: () => void }): void;
   clearError(): void;
+  /** Show / clear the rolling-latency warning banner (phase 05). */
+  setLatencyWarning(state: "ok" | "warn"): void;
 }
 
 const LABELS: Record<StatusKind, string> = {
@@ -27,10 +29,14 @@ export function createStatusBar(): StatusBar {
       <span class="status-text">Idle</span>
     </div>
     <div class="status-banner" hidden></div>
+    <div class="status-latency-warn" hidden>
+      ⚠ Translation latency is high (≥ 5s median). Network congested or upstream slow.
+    </div>
   `;
   const pill = root.querySelector<HTMLElement>(".status-pill")!;
   const text = root.querySelector<HTMLElement>(".status-text")!;
   const banner = root.querySelector<HTMLElement>(".status-banner")!;
+  const latencyBanner = root.querySelector<HTMLElement>(".status-latency-warn")!;
   let dismissTimer: number | undefined;
 
   function clearError() {
@@ -73,6 +79,9 @@ export function createStatusBar(): StatusBar {
       if (opts?.onSetup) banner.append(actionButton("Run Setup Doctor", opts.onSetup));
     },
     clearError,
+    setLatencyWarning(state) {
+      latencyBanner.hidden = state !== "warn";
+    },
   };
 }
 

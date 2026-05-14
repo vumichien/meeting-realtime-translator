@@ -15,6 +15,7 @@ import { createTranscriptExportPanel } from "./ui/transcript-export-panel";
 import { createSessionGuardrails } from "./ui/session-guardrails";
 import { createMeetingProfileController } from "./lib/meeting-profile-controller";
 import { createSessionController } from "./lib/session-controller";
+import { createLatencyWarning } from "./lib/latency-warning";
 
 export function mountApp(root: HTMLElement) {
   const settings = createSettings();
@@ -124,12 +125,17 @@ export function mountApp(root: HTMLElement) {
   root.querySelector("#slot-support")!.append(profileController.rootEl);
   root.querySelector("#slot-support")!.append(setupDoctor.rootEl);
 
+  const latencyWarning = createLatencyWarning();
+  latencyWarning.onChange((state) => status.setLatencyWarning(state));
+
   const debug = createDebugPanel({
     settings,
     initiallyOpen: settings.get("mt.debug_panel_open"),
     onToggle: (open) => settings.set("mt.debug_panel_open", open),
     getSetupDoctorResult: () => setupDoctor.latest(),
     getSessionDurationMs: () => guardrails.durationMs(),
+    onLatencySample: (ms) => latencyWarning.push(ms),
+    onReset: () => latencyWarning.reset(),
   });
   root.querySelector("#slot-debug")!.append(debug.rootEl);
 

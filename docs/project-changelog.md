@@ -2,9 +2,30 @@
 
 All notable changes to Meeting Realtime Translator are documented here.
 
-## [Unreleased] — 2026-05-14
+## [v0.2.0-rc.1] — 2026-05-15
 
-### Added
+### Added — v0.2 multi-provider
+
+- Added `TranslationProvider` abstraction (`client/src/providers/`); OpenAI Realtime now resolves through a registry so adding a third backend is a single directory.
+- Added Gemini Live as a second translation provider (opt-in, default stays OpenAI). Single-WebSocket transport with 16 kHz mic input and 24 kHz speaker output via `AudioWorklet`.
+- Added Gemini AI Studio + Vertex AI auth modes. Server mints ephemeral tokens via `/providers/gemini/ephemeral-token`; service-account JSON is exchanged for an OAuth access token using `google-auth-library`.
+- Added session-resume hot-handoff at T+13 min for Gemini's 15-min session cap. Old WS stays alive until WS #2 produces its first audio frame; listener gap ≤ 200 ms target.
+- Added detected-source-language chip to source caption pane (Gemini auto-detects 97+ languages).
+- Added rolling-latency warning banner (30 s median > 5 s warn, < 3 s clear) wired into the existing debug-metrics pipeline.
+- Added per-provider settings UI: provider radio + Gemini config sub-panel (auth mode, key/service-account, voice).
+- Added Electron `keyring:get/set/clear` IPC backed by a v2 typed JSON record encrypted via `safeStorage`. v0.1 single-key file migrates to `providerKeys.openai` on first launch.
+- Added Electron CSP allowing Gemini WebSocket endpoints (`generativelanguage.googleapis.com`, `*.aiplatform.googleapis.com`) alongside existing OpenAI hosts.
+- Added `docs/providers.md` provider comparison cheat sheet.
+
+### Added — pre-v0.2
+
+- Added Setup Doctor readiness checks for browser routing, mic signal, output routing, and virtual-cable-like devices.
+- Added recoverable session issue messages for missing/invalid API keys, rate limits, mic disconnects, output routing failures, and WebRTC failures.
+- Added redacted debug bundle v2 context: setup results, last issue, session duration, browser/platform, and safe request IDs.
+- Added local transcript export as Markdown/TXT, separate from debug bundles.
+- Added local meeting profiles for recurring language/device setups.
+- Added session timer, rough cost estimate, warning threshold, and optional auto-stop guardrail.
+- Added browser validation and Listener Mode research reports under the user-support plan.
 
 - Added Setup Doctor readiness checks for browser routing, mic signal, output routing, and virtual-cable-like devices.
 - Added recoverable session issue messages for missing/invalid API keys, rate limits, mic disconnects, output routing failures, and WebRTC failures.

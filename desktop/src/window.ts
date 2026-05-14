@@ -14,6 +14,8 @@ export async function createMainWindow(options: MainWindowOptions): Promise<Brow
     callback(permission === "media");
   });
 
+  applyContentSecurityPolicy(options.serverUrl);
+
   const win = new BrowserWindow({
     width: 1180,
     height: 820,
@@ -69,4 +71,36 @@ export async function createOnboardingWindow(options: {
 
 export function getPreloadPath(outDir: string): string {
   return join(outDir, "preload.cjs");
+}
+
+let cspApplied = false;
+function applyContentSecurityPolicy(serverUrl: string): void {
+  if (cspApplied) return;
+  cspApplied = true;
+  const connectSrc = [
+    "'self'",
+    serverUrl,
+    "https://api.openai.com",
+    "wss://api.openai.com",
+    "https://generativelanguage.googleapis.com",
+    "wss://generativelanguage.googleapis.com",
+    "https://*.aiplatform.googleapis.com",
+    "wss://*.aiplatform.googleapis.com",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const directives = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "media-src 'self' blob: mediastream:",
+    `connect-src ${connectSrc}`,
+    "font-src 'self' data:",
+  ].join("; ");
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const headers = { ...details.responseHeaders };
+    headers["Content-Security-Policy"] = [directives];
+    callback({ responseHeaders: headers });
+  });
 }

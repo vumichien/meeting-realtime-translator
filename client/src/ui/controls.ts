@@ -2,6 +2,8 @@ import { ALLOWED_LANGS, LANGUAGE_LABELS } from "../config/languages";
 import type { Settings } from "../settings";
 import { isMicEnvSetting } from "../lib/mic-env-detect";
 import type { ApiKeyProvider } from "../types";
+import { createProviderPicker } from "./provider-picker";
+import { createGeminiConfig, geminiHasValidKey } from "./gemini-config";
 
 export interface ControlsCallbacks {
   onStartClick: () => void;
@@ -66,9 +68,26 @@ export function createControls(
           <span>Flush captions on punctuation</span>
         </label>
       </div>
+      <div class="controls-provider"></div>
+      <div class="controls-gemini"></div>
       <div class="controls-extra-settings"></div>
     </details>
   `;
+
+  const providerSlot = root.querySelector(".controls-provider") as HTMLElement;
+  const geminiSlot = root.querySelector(".controls-gemini") as HTMLElement;
+  const providerPicker = createProviderPicker(settings, (id) => {
+    geminiConfig.setVisible(id === "gemini");
+    refreshStartButton();
+    cb.onSettingsChanged();
+  });
+  providerSlot.append(providerPicker.rootEl);
+  const geminiConfig = createGeminiConfig(settings, () => {
+    refreshStartButton();
+    cb.onSettingsChanged();
+  });
+  geminiSlot.append(geminiConfig.rootEl);
+  geminiConfig.setVisible(providerPicker.current() === "gemini");
 
   const langSelect = root.querySelector<HTMLSelectElement>("#ctrl-lang")!;
   for (const code of ALLOWED_LANGS) {
@@ -141,6 +160,20 @@ export function createControls(
   stopBtn.addEventListener("click", () => cb.onStopClick());
   clearBtn.addEventListener("click", () => cb.onClearCaptions());
 
+  function refreshStartButton() {
+    const id = providerPicker.current();
+    let disabled = false;
+    let title = "";
+    if (id === "gemini" && !geminiHasValidKey(settings)) {
+      disabled = true;
+      title = "Configure Gemini credentials in Settings.";
+    }
+    startBtn.disabled = disabled;
+    startBtn.title = title;
+  }
+  refreshStartButton();
+  keyInput.addEventListener("input", refreshStartButton);
+
   return {
     rootEl: root,
     settingsEl: root.querySelector<HTMLElement>(".controls-extra-settings")!,
@@ -150,6 +183,10 @@ export function createControls(
       flushIdle.value = String(settings.get("mt.captions_flush_idle_ms"));
       flushPunct.checked = settings.get("mt.captions_flush_on_punctuation");
       micEnvSelect.value = settings.get("mt.mic_env");
+      providerPicker.refresh();
+      geminiConfig.refresh();
+      geminiConfig.setVisible(providerPicker.current() === "gemini");
+      refreshStartButton();
     },
     setRunning(running) {
       startBtn.disabled = running;
@@ -158,11 +195,16 @@ export function createControls(
       transcribeBox.disabled = running;
       keyInput.disabled = running;
       micEnvSelect.disabled = running;
+      if (!running) refreshStartButton();
     },
     setBusy(busy) {
-      startBtn.disabled = busy || !stopBtn.disabled;
-      if (busy) startBtn.textContent = "Connecting…";
-      else startBtn.textContent = "Start translating";
+      if (busy) {
+        startBtn.disabled = true;
+        startBtn.textContent = "Connecting…";
+      } else {
+        startBtn.textContent = "Start translating";
+        refreshStartButton();
+      }
     },
   };
 }

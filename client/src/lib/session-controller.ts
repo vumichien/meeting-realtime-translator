@@ -5,7 +5,8 @@ import type { createTranscriptStore } from "./transcript-store";
 import type { createSessionGuardrails } from "../ui/session-guardrails";
 import type { createControls } from "../ui/controls";
 import type { createStatusBar } from "../ui/status";
-import { startSession } from "../translation-session";
+import { getProvider } from "../providers/registry";
+import type { ProviderId } from "../providers/types";
 import type { ApiKeyProvider, SessionHandle, SessionIssue } from "../types";
 import type { Settings } from "../settings";
 import { classifySessionError, makeSessionIssue } from "./session-error-messages";
@@ -49,13 +50,17 @@ export function createSessionController(args: {
     args.status.setStatus("connecting");
     try {
       const ids = args.getDeviceIds();
-      const handle = await startSession({
+      const providerId = (args.settings.get("mt.active_provider") as ProviderId | undefined) ?? "openai";
+      const provider = await getProvider(providerId);
+      const providerConfig = buildProviderConfig(providerId, args.settings);
+      const handle = await provider.startSession({
         targetLanguage: args.settings.get("mt.target_lang"),
         micDeviceId: ids.micDeviceId || undefined,
         outputDeviceId: ids.outputDeviceId || undefined,
         apiKey: (await args.apiKeyProvider.get()) || undefined,
         transcribeSource: args.settings.get("mt.transcribe_source"),
         micEnv: args.settings.get("mt.mic_env"),
+        providerConfig,
         onEvent: (e) => args.captions.push(e),
         onRawEvent: (raw, ts) => args.debug.recordEvent(raw, ts),
         onStateChange: (snapshot) => {
@@ -134,5 +139,24 @@ export function createSessionController(args: {
       );
     },
     durationMs: () => sessionStartedAt ? Date.now() - sessionStartedAt : 0,
+  };
+}
+
+function buildProviderConfig(
+  id: ProviderId,
+  settings: Settings,
+): Record<string, unknown> | undefined {
+  if (id !== "gemini") return undefined;
+  const authMode = settings.get("mt.gemini_auth_mode");
+  return {
+    authMode,
+    voice: settings.get("mt.gemini_voice"),
+    apiKey: settings.get("mt.gemini_api_key") || undefined,
+    serviceAccountJson:
+      authMode === "vertex"
+        ? settings.get("mt.gemini_service_account_json") || undefined
+        : undefined,
+    project: settings.get("mt.gemini_project") || undefined,
+    region: settings.get("mt.gemini_region") || undefined,
   };
 }

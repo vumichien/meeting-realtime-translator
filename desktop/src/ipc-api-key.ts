@@ -1,10 +1,13 @@
 import { app, ipcMain } from "electron";
-import type { SecureStore } from "./secure-store.js";
+import type { ProviderKeyring, SecureStore } from "./secure-store.js";
 
 const CHANNELS = {
   get: "apiKey:get",
   set: "apiKey:set",
   clear: "apiKey:clear",
+  keyringGet: "keyring:get",
+  keyringSet: "keyring:set",
+  keyringClear: "keyring:clear",
 } as const;
 
 export function registerApiKeyIpc(store: SecureStore) {
@@ -20,5 +23,20 @@ export function registerApiKeyIpc(store: SecureStore) {
 
   ipcMain.handle(CHANNELS.clear, async () => {
     await store.clearApiKey();
+  });
+
+  ipcMain.handle(CHANNELS.keyringGet, async () => {
+    return store.getKeyring();
+  });
+
+  ipcMain.handle(CHANNELS.keyringSet, async (_event, keyring: unknown) => {
+    if (!keyring || typeof keyring !== "object") {
+      throw new Error("Keyring must be an object.");
+    }
+    await store.setKeyring(keyring as ProviderKeyring);
+  });
+
+  ipcMain.handle(CHANNELS.keyringClear, async () => {
+    await store.clearKeyring();
   });
 }

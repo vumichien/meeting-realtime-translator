@@ -8,6 +8,9 @@ export type SessionEventType =
 export type TranscriptDeltaEvent = {
   type: "session.input_transcript.delta" | "session.output_transcript.delta";
   delta: string;
+  /** Optional language code on input deltas. Populated by providers that
+   *  auto-detect source language (e.g. Gemini Live). */
+  detectedSourceLang?: string;
 };
 
 export type SessionErrorEvent = {

@@ -2,21 +2,21 @@ import type {
   ConnectionStateSnapshot,
   SessionEvent,
   SessionHandle,
-} from "./types";
-import { exchangeSdp, mintSession } from "./webrtc-sdp";
+} from "../../types";
+import { exchangeSdp, mintSession } from "../../webrtc-sdp";
 import {
   detectMicEnv,
   micConstraintsFor,
   type MicEnv,
   type MicEnvSetting,
-} from "./lib/mic-env-detect";
+} from "../../lib/mic-env-detect";
 import {
   makeSessionIssue,
   SessionIssueError,
   type SessionIssue,
-} from "./lib/session-error-messages";
+} from "../../lib/session-error-messages";
 
-export interface StartSessionOptions {
+export interface StartOpenAiSessionOptions {
   targetLanguage: string;
   micDeviceId?: string;
   outputDeviceId?: string;
@@ -30,9 +30,10 @@ export interface StartSessionOptions {
   onError?: (err: Error) => void;
 }
 
-export async function startSession(opts: StartSessionOptions): Promise<SessionHandle> {
+export async function startOpenAiSession(
+  opts: StartOpenAiSessionOptions,
+): Promise<SessionHandle> {
   const transcribeSource = opts.transcribeSource !== false;
-  // Resolve mic env: explicit override wins; otherwise sniff the device label.
   const resolvedMicEnv = await resolveMicEnv(opts.micEnv ?? "auto", opts.micDeviceId);
   // 1. Mint short-lived client secret via local backend.
   const minted = await mintSession({
@@ -63,7 +64,7 @@ export async function startSession(opts: StartSessionOptions): Promise<SessionHa
     );
   }
 
-  // 3. Set up peer connection.
+  // 3. Peer connection.
   const pc = new RTCPeerConnection();
   if (micTrack) pc.addTrack(micTrack, micStream);
 

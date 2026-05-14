@@ -1,5 +1,29 @@
 # System Architecture
 
+## Provider Abstraction Layer (v0.2)
+
+Translation backends live behind the `TranslationProvider` interface in
+`client/src/providers/types.ts`. `app.ts` never imports a specific
+transport — it resolves the active provider through `providers/registry.ts`
+based on `Settings → mt.active_provider`.
+
+```
+app.ts
+  └─ providers/registry.ts ── id → factory (lazy)
+        ├─ providers/openai/adapter.ts  → webrtc-session.ts → OpenAI Realtime (WebRTC)
+        └─ providers/gemini/adapter.ts  → live-client.ts  → Gemini Live (WebSocket)
+              ├─ audio-input-worklet.ts  (48k → 16k PCM16)
+              ├─ audio-output-worklet.ts (24k PCM16 → MediaStream)
+              ├─ session-resume.ts       (13-min hot-handoff)
+              └─ caption-mapper.ts       (Gemini events → CaptionEvent)
+```
+
+`@google/genai` is not used — the wire format is hand-rolled to keep the
+OpenAI-only bundle delta at zero. The Gemini path is dynamic-imported via
+`registry.ts` so it only loads when selected.
+
+See `docs/providers.md` for a side-by-side comparison.
+
 ## Runtime Data Flow
 
 ## Desktop Distribution Layer

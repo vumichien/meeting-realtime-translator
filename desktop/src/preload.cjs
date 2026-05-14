@@ -15,6 +15,11 @@ contextBridge.exposeInMainWorld("electron", {
     set: (value) => ipcRenderer.invoke("apiKey:set", value),
     clear: () => ipcRenderer.invoke("apiKey:clear"),
   },
+  keyring: {
+    get: () => ipcRenderer.invoke("keyring:get"),
+    set: (keyring) => ipcRenderer.invoke("keyring:set", keyring),
+    clear: () => ipcRenderer.invoke("keyring:clear"),
+  },
   onboarding: {
     getState: () => ipcRenderer.invoke("onboarding:get-state"),
     completeStep: (step) => ipcRenderer.invoke("onboarding:complete-step", step),

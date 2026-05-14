@@ -1,6 +1,6 @@
 {
   "name": "meeting-auto-translate",
-  "version": "0.1.2",
+  "version": "0.2.0-rc.1",
   "private": true,
   "description": "Browser web app that translates the user's Vietnamese speech to a target language in real-time and routes translated audio into Zoom/Meet via a virtual audio cable.",
   "license": "MIT",
