@@ -173,4 +173,3 @@ See `system-architecture.md` for detailed data flow + session lifecycle.
 
 ### Docs
 - `docs/providers.md` — provider comparison + when-to-use cheat sheet.
-
