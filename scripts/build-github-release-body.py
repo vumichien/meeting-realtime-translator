@@ -70,7 +70,7 @@ def main() -> int:
     parts: list[str] = [
         f"# Meeting Realtime Translator {args.tag}",
         "",
-        "Release artifacts: Windows NSIS installer (`.exe`) and Linux AppImage (`.AppImage`) are attached under **Assets**.",
+        "Release artifacts: Windows NSIS installer (`.exe`), Linux AppImage (`.AppImage`), and macOS universal disk image (`.dmg`) are attached under **Assets**. The macOS app is not Apple Developer ID signed or notarized.",
         "",
     ]
     if unreleased:

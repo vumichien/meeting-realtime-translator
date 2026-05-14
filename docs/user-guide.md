@@ -6,7 +6,8 @@ This guide is for people who want the desktop app and do not want to use the com
 
 1. Open the latest GitHub Release.
 2. Windows: download the `.exe` installer.
-3. Linux: download the `.AppImage`.
+3. macOS: download the `.dmg`.
+4. Linux: download the `.AppImage`.
 
 ## Install On Windows
 
@@ -16,6 +17,14 @@ This guide is for people who want the desktop app and do not want to use the com
 4. Open **Babel Mic** from the Start menu.
 
 Unsigned apps commonly show the SmartScreen warning. Babel Mic v0.2 does not use paid code signing yet.
+
+## Install On macOS
+
+1. Open the `.dmg`.
+2. Drag **Babel Mic** to **Applications**.
+3. Open **Babel Mic** from Applications.
+
+The macOS build is not Apple Developer ID signed or notarized yet. If macOS blocks the first launch, open **System Settings → Privacy & Security** and choose **Open Anyway** for Babel Mic. Do not disable Gatekeeper globally.
 
 ## Install On Linux
 
@@ -64,6 +73,8 @@ You can rerun the wizard later from **Help → Run setup wizard again**.
 
 Windows: use **Settings → Apps → Installed apps → Babel Mic → Uninstall**.
 
+macOS: delete **Babel Mic** from Applications.
+
 Linux: delete the `.AppImage`. If you created menu entries, remove them from your app launcher.
 
 ## FAQ
@@ -84,6 +95,8 @@ In the OS-protected app data folder through Electron `safeStorage` when availabl
 
 - Windows SmartScreen warning
 - Windows installer
+- macOS not-notarized app warning
+- macOS DMG install window
 - Linux AppImage permission screen
 - Wizard steps 1 through 5
 - Main Babel Mic window

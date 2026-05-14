@@ -27,6 +27,15 @@ nsis:
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
+mac:
+  target:
+    - target: dmg
+      arch:
+        - universal
+  category: public.app-category.utilities
+  identity: "-"
+dmg:
+  artifactName: ${productName}-${version}-mac-universal.${ext}
 linux:
   target:
     - target: AppImage

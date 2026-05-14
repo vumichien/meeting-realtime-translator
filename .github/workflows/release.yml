@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-15-intel]
 
     steps:
       - name: Checkout
@@ -34,6 +34,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libarchive-tools
+
+      - name: Disable macOS signing auto-discovery
+        if: matrix.os == 'macos-15-intel'
+        run: echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: npm install
@@ -58,6 +62,14 @@ jobs:
         with:
           name: release-assets-linux
           path: desktop/dist/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload macOS DMG
+        if: matrix.os == 'macos-15-intel'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-macos
+          path: desktop/dist/*.dmg
           if-no-files-found: error
 
   release:

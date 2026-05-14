@@ -4,7 +4,11 @@ All notable changes to Meeting Realtime Translator are documented here.
 
 ## [Unreleased] — 2026-05-14
 
-- No unreleased changes yet.
+### Added
+
+- Added a universal macOS DMG release package for the desktop app, without Apple Developer ID signing or notarization.
+- Added a macOS release workflow lane that uploads the DMG alongside Windows and Linux assets.
+- Documented macOS desktop download, install, and not-notarized warning flow.
 
 ## [v0.1.1] — 2026-05-14
 
