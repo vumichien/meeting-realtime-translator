@@ -1,6 +1,7 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {IntroVideo} from './intro-video';
+import {AppInfoVideo} from './app-info-video';
 import {FPS, SCENE} from './design-tokens';
 
 // Total = sum of scenes − (transitions × overlap)
@@ -10,12 +11,22 @@ const TOTAL_FRAMES =
   4 * SCENE.transition;
 
 export const RemotionRoot: React.FC = () => (
-  <Composition
-    id="IntroVideo"
-    component={IntroVideo}
-    durationInFrames={TOTAL_FRAMES}
-    fps={FPS}
-    width={1280}
-    height={720}
-  />
+  <>
+    <Composition
+      id="IntroVideo"
+      component={IntroVideo}
+      durationInFrames={TOTAL_FRAMES}
+      fps={FPS}
+      width={1280}
+      height={720}
+    />
+    <Composition
+      id="AppInfoVideo"
+      component={AppInfoVideo}
+      durationInFrames={240}
+      fps={FPS}
+      width={1280}
+      height={720}
+    />
+  </>
 );
