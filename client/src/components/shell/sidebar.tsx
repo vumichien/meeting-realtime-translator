@@ -42,7 +42,7 @@ export function Sidebar({
       >
         {!collapsed && (
           <span className="truncate text-sm font-semibold text-foreground">
-            MeetingTranslate
+            Babel Mic
           </span>
         )}
 

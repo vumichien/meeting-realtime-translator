@@ -8,6 +8,13 @@ import { PermissionsBanner } from "./permissions-banner";
 import { DeviceSelect } from "./device-select";
 import { TestOutputButton } from "./test-output-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Mic environment options
 const MIC_ENV_OPTIONS = [
@@ -79,19 +86,21 @@ export function DevicesScreen(): React.JSX.Element {
             <label className="text-sm font-medium" htmlFor="mic-env-select">
               Mic environment
             </label>
-            <select
-              id="mic-env-select"
+            <Select
               value={micEnv}
-              onChange={(e) => setSetting("mt.mic_env", e.target.value as MicEnv)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Mic environment"
+              onValueChange={(value) => setSetting("mt.mic_env", value as MicEnv)}
             >
-              {MIC_ENV_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger id="mic-env-select" aria-label="Mic environment">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MIC_ENV_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Test output */}

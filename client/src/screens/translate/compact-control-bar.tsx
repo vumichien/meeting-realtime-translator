@@ -1,9 +1,5 @@
-// Bottom control bar for the Translate screen.
-// Contains: Mic select, Output select, Target lang select, Start/Stop, Clear, Export.
-// Stacks vertically on narrow viewports (< 800px) via Tailwind responsive classes.
-
 import React, { useCallback } from "react";
-import { Play, Square, Trash2, Download } from "lucide-react";
+import { Download, Languages, Mic, Play, Square, Trash2, Volume2, type LucideIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -42,10 +38,28 @@ function deviceLabel(device: DeviceInfo): string {
   return star + (device.label || device.deviceId);
 }
 
-/**
- * Horizontal control strip at the bottom of the Translate screen.
- * Wraps to two rows on narrow viewports.
- */
+interface ControlFieldProps {
+  icon: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+}
+
+function ControlField({
+  icon: Icon,
+  label,
+  children,
+}: ControlFieldProps): React.JSX.Element {
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex items-center gap-1.5 px-1 text-[0.68rem] font-medium uppercase leading-none tracking-wide text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        <span>{label}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function CompactControlBar({
   mics,
   outputs,
@@ -68,61 +82,62 @@ export function CompactControlBar({
   const handleExportTxt = useCallback(() => onExport("txt"), [onExport]);
 
   return (
-    <div className="shrink-0 border-t border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Microphone selector */}
-        <Select value={micId || undefined} onValueChange={onMicChange}>
-          <SelectTrigger className="h-8 w-44 text-xs" aria-label="Source microphone">
-            <SelectValue placeholder="Select mic…" />
-          </SelectTrigger>
-          <SelectContent>
-            {mics.map((d) => (
-              <SelectItem key={d.deviceId} value={d.deviceId} className="text-xs">
-                {deviceLabel(d)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="shrink-0 border-t border-border bg-background/95 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex flex-wrap items-end gap-2.5">
+        <ControlField icon={Mic} label="Source mic">
+          <Select value={micId || undefined} onValueChange={onMicChange}>
+            <SelectTrigger className="h-9 w-56 text-xs" aria-label="Source microphone">
+              <SelectValue placeholder="Choose your real microphone" />
+            </SelectTrigger>
+            <SelectContent>
+              {mics.map((d) => (
+                <SelectItem key={d.deviceId} value={d.deviceId} className="text-xs">
+                  {deviceLabel(d)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </ControlField>
 
-        {/* Output device selector */}
-        <Select value={outputId || undefined} onValueChange={onOutputChange}>
-          <SelectTrigger className="h-8 w-44 text-xs" aria-label="Output device">
-            <SelectValue placeholder="Select output…" />
-          </SelectTrigger>
-          <SelectContent>
-            {outputs.map((d) => (
-              <SelectItem key={d.deviceId} value={d.deviceId} className="text-xs">
-                {deviceLabel(d)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ControlField icon={Volume2} label="Output to meeting">
+          <Select value={outputId || undefined} onValueChange={onOutputChange}>
+            <SelectTrigger className="h-9 w-56 text-xs" aria-label="Output device">
+              <SelectValue placeholder="Choose virtual cable output" />
+            </SelectTrigger>
+            <SelectContent>
+              {outputs.map((d) => (
+                <SelectItem key={d.deviceId} value={d.deviceId} className="text-xs">
+                  {deviceLabel(d)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </ControlField>
 
-        {/* Target language selector */}
-        <Select value={targetLang} onValueChange={onLangChange}>
-          <SelectTrigger className="h-8 w-36 text-xs" aria-label="Target language">
-            <SelectValue placeholder="Language…" />
-          </SelectTrigger>
-          <SelectContent>
-            {ALLOWED_LANGS.map((code) => (
-              <SelectItem key={code} value={code} className="text-xs">
-                {LANGUAGE_LABELS[code]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ControlField icon={Languages} label="Translate to">
+          <Select value={targetLang} onValueChange={onLangChange}>
+            <SelectTrigger className="h-9 w-40 text-xs" aria-label="Target language">
+              <SelectValue placeholder="Target language" />
+            </SelectTrigger>
+            <SelectContent>
+              {ALLOWED_LANGS.map((code) => (
+                <SelectItem key={code} value={code} className="text-xs">
+                  {LANGUAGE_LABELS[code]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </ControlField>
 
-        {/* Spacer pushes action buttons to the right */}
         <div className="flex-1" />
 
-        {/* Start / Stop */}
         {isRunning ? (
           <Button
             size="sm"
             variant="destructive"
             onClick={onStop}
             disabled={isConnecting}
-            className="h-8 gap-1.5 text-xs"
+            className="h-9 gap-1.5 text-xs"
             aria-label="Stop translation"
           >
             <Square className="h-3 w-3" />
@@ -132,7 +147,7 @@ export function CompactControlBar({
           <Button
             size="sm"
             onClick={onStart}
-            className="h-8 gap-1.5 text-xs"
+            className="h-9 gap-1.5 text-xs"
             aria-label="Start translation"
           >
             <Play className="h-3 w-3" />
@@ -140,12 +155,11 @@ export function CompactControlBar({
           </Button>
         )}
 
-        {/* Clear captions */}
         <Button
           size="sm"
           variant="outline"
           onClick={onClear}
-          className="h-8 gap-1.5 text-xs"
+          className="h-9 gap-1.5 text-xs"
           aria-label="Clear captions"
           title="Clear captions"
         >
@@ -153,12 +167,11 @@ export function CompactControlBar({
           Clear
         </Button>
 
-        {/* Export menu (two simple buttons for compactness) */}
         <Button
           size="sm"
           variant="ghost"
           onClick={handleExportTxt}
-          className="h-8 gap-1.5 text-xs"
+          className="h-9 gap-1.5 text-xs"
           aria-label="Export as text"
           title="Export transcript as .txt"
         >
@@ -169,7 +182,7 @@ export function CompactControlBar({
           size="sm"
           variant="ghost"
           onClick={handleExportJson}
-          className="h-8 gap-1.5 text-xs"
+          className="h-9 gap-1.5 text-xs"
           aria-label="Export as JSON"
           title="Export transcript as .json"
         >
