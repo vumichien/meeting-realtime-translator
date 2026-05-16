@@ -29,6 +29,39 @@ export function TranslateScreen(): React.JSX.Element {
   const isIdle = session.state === "idle";
   const showHero = isIdle && entries.length === 0;
 
+  // "Selected" requires the persisted ID to still exist in the enumerated list —
+  // a stale localStorage ID alone is not enough (e.g. mic permission not yet granted,
+  // or device unplugged since last session).
+  const micDone = devices.mics.some((m) => m.deviceId === devices.micId);
+  const outputDone = devices.outputs.some((o) => o.deviceId === devices.outputId);
+
+  // Provider is "configured" when the ACTIVE provider has its required key set.
+  // OpenAI uses the safeStorage-backed apiKey (hasKey from useApiKeyProvider).
+  // Gemini uses settings.mt.gemini_api_key (ai-studio mode) or service account
+  // JSON (vertex mode). Either-or — user only needs to configure the provider
+  // they actually selected.
+  const activeProvider = getSettings("mt.active_provider");
+  const geminiKey = getSettings("mt.gemini_api_key");
+  const geminiAuthMode = getSettings("mt.gemini_auth_mode");
+  const geminiServiceAccount = getSettings("mt.gemini_service_account_json");
+  const geminiConfigured =
+    geminiAuthMode === "vertex"
+      ? !!geminiServiceAccount.trim()
+      : !!geminiKey.trim();
+  const providerDone =
+    activeProvider === "gemini" ? geminiConfigured : hasKey === true;
+
+  // Auto-request mic permission once when devices list is empty so labels populate.
+  // Browsers return placeholder entries with empty deviceId pre-permission;
+  // those are filtered out in listDevices, leaving an empty array until granted.
+  useEffect(() => {
+    if (devices.mics.length === 0 && devices.outputs.length === 0) {
+      void devices.requestPermission();
+    }
+    // Intentionally only re-run on list length change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devices.mics.length, devices.outputs.length]);
+
   // Export handler: triggers browser download via blob
   const handleExport = useCallback(
     (format: "json" | "txt") => {
@@ -87,9 +120,9 @@ export function TranslateScreen(): React.JSX.Element {
       <div className="flex min-h-0 flex-1 flex-col">
         {showHero ? (
           <FirstRunHero
-            micDone={!!devices.micId}
-            outputDone={!!devices.outputId}
-            providerDone={hasKey === true}
+            micDone={micDone}
+            outputDone={outputDone}
+            providerDone={providerDone}
             onStart={() => {
               session.start().catch((err: unknown) => {
                 console.error("[translate-screen] start failed", err);

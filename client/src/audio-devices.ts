@@ -46,9 +46,12 @@ function toDeviceInfo(d: MediaDeviceInfo): DeviceInfo {
 
 export async function listDevices(): Promise<DeviceLists> {
   const all = await navigator.mediaDevices.enumerateDevices();
+  // Drop placeholder entries Chromium emits before mic permission (empty deviceId).
+  // They would render as <SelectItem value=""/> which Radix Select rejects.
+  const real = all.filter((d) => d.deviceId !== "");
   return {
-    inputs: all.filter((d) => d.kind === "audioinput").map(toDeviceInfo),
-    outputs: all.filter((d) => d.kind === "audiooutput").map(toDeviceInfo),
+    inputs: real.filter((d) => d.kind === "audioinput").map(toDeviceInfo),
+    outputs: real.filter((d) => d.kind === "audiooutput").map(toDeviceInfo),
   };
 }
 

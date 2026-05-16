@@ -5,6 +5,8 @@ import React, { useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useProviders } from "@/hooks/use-providers";
 import { useSession } from "@/hooks/use-session";
+import { useSettings } from "@/hooks/use-settings";
+import { useApiKeyProvider } from "@/hooks/use-api-key";
 import { ProviderCard, type ProviderCardMeta } from "./provider-card";
 import { ProviderConfigDialog } from "./provider-config-dialog";
 import { LocalComingSoon } from "./local-coming-soon";
@@ -38,7 +40,20 @@ const LOCAL_META: ProviderCardMeta = {
 export function ProvidersScreen(): React.JSX.Element {
   const { active, setActive } = useProviders();
   const { state: sessionState } = useSession();
+  const { settings: snap } = useSettings();
+  const { hasKey: openaiHasKey } = useApiKeyProvider();
   const sessionActive = sessionState !== "idle";
+
+  // Per-provider "configured" status — OpenAI uses safeStorage path; Gemini
+  // uses settings (api key for ai-studio mode, service-account JSON for vertex).
+  const geminiConfigured =
+    snap["mt.gemini_auth_mode"] === "vertex"
+      ? !!snap["mt.gemini_service_account_json"].trim()
+      : !!snap["mt.gemini_api_key"].trim();
+  const configuredById: Record<"openai" | "gemini", boolean> = {
+    openai: openaiHasKey === true,
+    gemini: geminiConfigured,
+  };
 
   const [dialogProvider, setDialogProvider] = useState<ProviderCardMeta | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -78,6 +93,7 @@ export function ProvidersScreen(): React.JSX.Element {
               key={meta.id}
               meta={meta}
               isActive={active === meta.id}
+              isConfigured={configuredById[meta.id as "openai" | "gemini"] ?? false}
               disabled={sessionActive}
               onSelect={handleSelect}
               onConfigure={handleConfigure}

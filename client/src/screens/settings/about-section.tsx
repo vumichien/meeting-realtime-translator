@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 
 const DEVELOPER_MODE_KEY = "mt.developer_mode";
-const GITHUB_URL = "https://github.com/vumichien/meeting-auto-translate";
+const GITHUB_URL = "https://github.com/vumichien/meeting-realtime-translator";
 
 function readDeveloperMode(): boolean {
   try {

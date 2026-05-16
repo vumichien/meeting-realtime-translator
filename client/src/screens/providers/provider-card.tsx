@@ -21,6 +21,8 @@ export interface ProviderCardMeta {
 interface ProviderCardProps {
   meta: ProviderCardMeta;
   isActive: boolean;
+  /** Whether this provider has its required key/credentials set. */
+  isConfigured?: boolean;
   disabled?: boolean;
   onSelect: (id: ProviderCardMeta["id"]) => void;
   onConfigure: (id: ProviderCardMeta["id"]) => void;
@@ -29,6 +31,7 @@ interface ProviderCardProps {
 export function ProviderCard({
   meta,
   isActive,
+  isConfigured = false,
   disabled = false,
   onSelect,
   onConfigure,
@@ -67,6 +70,22 @@ export function ProviderCard({
           {meta.comingSoon && (
             <Badge variant="secondary" className="text-xs">
               Coming soon
+            </Badge>
+          )}
+          {!meta.comingSoon && isConfigured && (
+            <Badge
+              variant="outline"
+              className="border-emerald-500/50 bg-emerald-500/10 text-xs text-emerald-600 dark:text-emerald-400"
+            >
+              Configured
+            </Badge>
+          )}
+          {!meta.comingSoon && !isConfigured && (
+            <Badge
+              variant="outline"
+              className="border-amber-500/50 bg-amber-500/10 text-xs text-amber-600 dark:text-amber-400"
+            >
+              Not configured
             </Badge>
           )}
         </div>
