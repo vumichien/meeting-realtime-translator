@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld("electron", {
     finish: () => ipcRenderer.invoke("onboarding:finish"),
   },
   platform: process.platform,
+  setSurfaceStyle: (style) => ipcRenderer.invoke("set-surface-style", style),
   session: {
     testMint: async (apiKey) => {
       try {
@@ -47,6 +48,7 @@ contextBridge.exposeInMainWorld("electron", {
   },
   shell: {
     openExternal: (url) => ipcRenderer.invoke("shell:open-external", url),
+    openLogsFolder: () => ipcRenderer.invoke("shell:open-logs-folder"),
   },
   telemetry: {
     getConsent: () => ipcRenderer.invoke("telemetry:get-consent"),

@@ -17,6 +17,7 @@ export interface SettingsStore {
   "mt.active_profile_id": string;
   "mt.session_warning_minutes": number;
   "mt.session_auto_stop_minutes": number;
+  "mt.show_cost_in_pill": boolean;
   // Multi-provider: 'openai' (default) or 'gemini' (phase 02+).
   "mt.active_provider": "openai" | "gemini";
   // Gemini-specific config (used only when active provider = gemini).
@@ -44,6 +45,7 @@ export const DEFAULT_SETTINGS: SettingsStore = {
   "mt.active_profile_id": "",
   "mt.session_warning_minutes": 30,
   "mt.session_auto_stop_minutes": 0,
+  "mt.show_cost_in_pill": true,
   "mt.active_provider": "openai",
   "mt.gemini_auth_mode": "ai-studio",
   "mt.gemini_voice": "Aoede",
@@ -57,17 +59,40 @@ export interface Settings {
   get<K extends SettingsKey>(key: K): SettingsStore[K];
   set<K extends SettingsKey>(key: K, value: SettingsStore[K]): void;
   snapshot(): SettingsStore;
+  /** Subscribe to any settings change. Returns an unsubscribe function. */
+  subscribe(cb: () => void): () => void;
 }
 
 export function createSettings(storage: Storage = localStorage): Settings {
+  const listeners = new Set<() => void>();
+
   function get<K extends SettingsKey>(key: K): SettingsStore[K] {
     const raw = storage.getItem(key);
     if (raw === null) return DEFAULT_SETTINGS[key];
     return decode(key, raw);
   }
+
+  function computeSnapshot(): SettingsStore {
+    const out = { ...DEFAULT_SETTINGS };
+    (Object.keys(DEFAULT_SETTINGS) as SettingsKey[]).forEach((k) => {
+      (out as any)[k] = get(k);
+    });
+    return out;
+  }
+
+  // Cache the snapshot so useSyncExternalStore sees stable object identity
+  // between renders. Rebuilt only inside notify() after a real mutation.
+  let cachedSnapshot: SettingsStore = computeSnapshot();
+
+  function notify() {
+    cachedSnapshot = computeSnapshot();
+    listeners.forEach((cb) => cb());
+  }
+
   function set<K extends SettingsKey>(key: K, value: SettingsStore[K]): void {
     try {
       storage.setItem(key, encode(value));
+      notify();
     } catch (err) {
       console.warn("[settings] write failed", key, err);
     }
@@ -76,11 +101,11 @@ export function createSettings(storage: Storage = localStorage): Settings {
     get,
     set,
     snapshot() {
-      const out = { ...DEFAULT_SETTINGS };
-      (Object.keys(DEFAULT_SETTINGS) as SettingsKey[]).forEach((k) => {
-        (out as any)[k] = get(k);
-      });
-      return out;
+      return cachedSnapshot;
+    },
+    subscribe(cb) {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
     },
   };
 }

@@ -2,6 +2,20 @@
 
 All notable changes to Meeting Realtime Translator are documented here.
 
+## [Unreleased] — UI shell refactor
+
+### Refactored
+
+- `refactor(client): replace vanilla-TS UI with React 19 + shadcn sidebar shell`
+  - Deleted: `client/src/app.ts`, `client/src/main.ts`, `client/src/styles.css`, `client/src/debug-panel.ts`, all `client/src/ui/*.ts` (11 files), `client/src/lib/{session-controller,meeting-profile-controller,debug-helpers,debug-metrics,debug-vu-bindings,event-buffer,session-cost-estimate}.ts`, and empty dirs `ui/layout/` + `ui/views/`.
+  - Renamed: `client/src/main-react.tsx` → `client/src/main.tsx`; mount point `#app-react` → `#app`; removed legacy `display:none` guard.
+  - `client/index.html` now has a single `<div id="app">` and a single `<script src="/src/main.tsx">` — no dual-boot.
+  - `client/tsconfig.json` exclude block removed; all `src/**` now typechecks clean.
+  - `client/src/lib/debug-bundle.ts` retained: used by `debug-event-log.tsx` (diagnostics screen "Copy redacted bundle").
+  - Architecture: React 19 + Tailwind v4 + shadcn/ui sidebar shell. 7 screens. 14 hooks wrapping vanilla logic modules. 4-way theme (Light/Dark × Solid/Translucent). Electron Mica/vibrancy preserved.
+  - Bundle: JS 153 kB gzip, CSS 7.5 kB gzip (`vite build` 2026-05-16).
+  - Plan: `plans/260516-1604-ui-refactor-sidebar-shadcn/`
+
 ## [v0.2.0-rc.1] — 2026-05-15
 
 ### Added — v0.2 multi-provider
@@ -18,14 +32,6 @@ All notable changes to Meeting Realtime Translator are documented here.
 - Added `docs/providers.md` provider comparison cheat sheet.
 
 ### Added — pre-v0.2
-
-- Added Setup Doctor readiness checks for browser routing, mic signal, output routing, and virtual-cable-like devices.
-- Added recoverable session issue messages for missing/invalid API keys, rate limits, mic disconnects, output routing failures, and WebRTC failures.
-- Added redacted debug bundle v2 context: setup results, last issue, session duration, browser/platform, and safe request IDs.
-- Added local transcript export as Markdown/TXT, separate from debug bundles.
-- Added local meeting profiles for recurring language/device setups.
-- Added session timer, rough cost estimate, warning threshold, and optional auto-stop guardrail.
-- Added browser validation and Listener Mode research reports under the user-support plan.
 
 - Added Setup Doctor readiness checks for browser routing, mic signal, output routing, and virtual-cable-like devices.
 - Added recoverable session issue messages for missing/invalid API keys, rate limits, mic disconnects, output routing failures, and WebRTC failures.

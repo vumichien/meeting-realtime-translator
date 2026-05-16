@@ -16,11 +16,17 @@ declare global {
         finish(): Promise<{ completedAt: string | null; stepsDone: number[] }>;
       };
       readonly platform?: string;
+      /** Phase 7: triggers native vibrancy (macOS) or Mica (Windows 11 22H2+). */
+      readonly setSurfaceStyle?: (
+        style: "solid" | "translucent",
+      ) => Promise<{ ok: boolean; platform: string }>;
       readonly session?: {
         testMint(apiKey: string): Promise<{ ok: boolean; message: string }>;
       };
       readonly shell?: {
         openExternal(url: string): Promise<void>;
+        /** Phase 7: wired in main process. Optional until IPC is registered. */
+        openLogsFolder?(): Promise<void>;
       };
       readonly telemetry?: {
         getConsent(): Promise<boolean | null>;

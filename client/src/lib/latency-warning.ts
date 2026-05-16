@@ -17,6 +17,7 @@ export interface LatencyWarning {
   reset(): void;
   state(): "ok" | "warn";
   onChange(cb: (state: "ok" | "warn") => void): void;
+  offChange(cb: (state: "ok" | "warn") => void): void;
 }
 
 export function createLatencyWarning(): LatencyWarning {
@@ -67,6 +68,10 @@ export function createLatencyWarning(): LatencyWarning {
     state: () => current,
     onChange(cb) {
       listeners.push(cb);
+    },
+    offChange(cb) {
+      const idx = listeners.indexOf(cb);
+      if (idx !== -1) listeners.splice(idx, 1);
     },
   };
 }

@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { registerApiKeyIpc } from "./ipc-api-key.js";
 import { registerOnboardingIpc } from "./ipc-onboarding.js";
+import { registerShellIpc } from "./ipc-shell.js";
+import { registerSurfaceStyleIpc } from "./ipc-surface-style.js";
 import { registerTelemetryIpc } from "./ipc-telemetry.js";
 import { getOnboardingStatePath, readOnboardingState } from "./onboarding/state.js";
 import { startHostedServer, type HostedServer } from "./server-host.js";
@@ -12,6 +14,7 @@ import { createMainWindow, createOnboardingWindow, getPreloadPath } from "./wind
 
 let hostedServer: HostedServer | null = null;
 let ipcRegistered = false;
+let windowIpcRegistered = false;
 let telemetry: TelemetryService | null = null;
 
 const outDir = dirname(fileURLToPath(import.meta.url));
@@ -26,13 +29,22 @@ async function boot() {
   await openOnboardingIfNeeded();
   installMenu();
 
-  await createMainWindow({
+  const mainWin = await createMainWindow({
     clientUrl: isDev ? devClientUrl : null,
     clientFile: isDev ? null : join(process.resourcesPath, "client", "dist", "index.html"),
     isDev,
     preloadPath: getPreloadPath(outDir),
     serverUrl: hostedServer.url,
   });
+
+  // Register window-specific IPC handlers that need a BrowserWindow reference.
+  // Guard with a flag so re-running boot() on macOS `activate` doesn't call
+  // ipcMain.handle() twice (which throws "IPC handler already exists").
+  if (!windowIpcRegistered) {
+    windowIpcRegistered = true;
+    registerSurfaceStyleIpc(mainWin);
+    registerShellIpc();
+  }
 }
 
 function registerIpcOnce() {

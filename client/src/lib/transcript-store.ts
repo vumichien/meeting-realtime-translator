@@ -35,7 +35,22 @@ export function createTranscriptStore(): TranscriptStore {
   let segments: TranscriptSegment[] = [];
   const listeners = new Set<() => void>();
 
+  // Cached snapshot — rebuilt only after mutations to keep stable object
+  // identity for useSyncExternalStore (avoids React tearing warnings).
+  let cachedSnapshot: TranscriptSnapshot = {
+    sessionStartedAt: null,
+    sessionEndedAt: null,
+    targetLanguage: "",
+    segments: [],
+  };
+
   function notify() {
+    cachedSnapshot = {
+      sessionStartedAt,
+      sessionEndedAt,
+      targetLanguage,
+      segments: [...segments],
+    };
     listeners.forEach((listener) => listener());
   }
 
@@ -73,12 +88,7 @@ export function createTranscriptStore(): TranscriptStore {
       notify();
     },
     snapshot() {
-      return {
-        sessionStartedAt,
-        sessionEndedAt,
-        targetLanguage,
-        segments: [...segments],
-      };
+      return cachedSnapshot;
     },
     hasContent: () => segments.length > 0,
     subscribe(listener) {

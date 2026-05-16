@@ -22,6 +22,10 @@ export async function createMainWindow(options: MainWindowOptions): Promise<Brow
     minWidth: 920,
     minHeight: 680,
     title: "Babel Mic",
+    // transparent + zero-alpha background required for vibrancy (macOS) and
+    // Mica (Windows 11 22H2+) to take effect. Cannot be toggled after creation.
+    transparent: true,
+    backgroundColor: "#00000000",
     webPreferences: {
       additionalArguments: [`--server-url=${options.serverUrl}`],
       contextIsolation: true,
