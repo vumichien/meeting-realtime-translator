@@ -37,7 +37,7 @@ Complete file inventory of Meeting Realtime Translator. One line per file: path 
 
 - `client/src/components/shell/app-shell.tsx` — Root layout: sidebar + content pane router. 7 named routes.
 - `client/src/components/shell/sidebar-nav.tsx` — shadcn `Sidebar` navigation with icons per screen.
-- `client/src/components/theme/theme-provider.tsx` — React context wrapping CSS variable–based 4-way theme (Light/Dark × Solid/Translucent).
+- `client/src/components/theme/theme-provider.tsx` — React context wrapping CSS variable–based 4-way theme (Light/Dark × Solid/Liquid glass), defaulting to translucent on supported platforms.
 - `client/src/components/theme/theme-toggle.tsx` — Dropdown to switch active theme variant.
 - `client/src/components/ui/` — shadcn/ui primitives: button, card, dialog, dropdown-menu, input, label, scroll-area, select, separator, sidebar, switch, tabs, textarea, toggle, tooltip.
 
@@ -70,7 +70,7 @@ Seven screens, each a focused React subtree — no cross-screen imports.
 - `client/src/screens/transcripts/transcript-card.tsx` — single history entry with metadata.
 - `client/src/screens/transcripts/transcript-detail-dialog.tsx` — full-text view + export (MD/TXT).
 - `client/src/screens/settings/settings-screen.tsx` — tabbed settings: appearance, captions, guardrails, about.
-- `client/src/screens/settings/appearance-section.tsx` — theme + sidebar position toggles.
+- `client/src/screens/settings/appearance-section.tsx` — color mode + surface style toggles.
 - `client/src/screens/settings/captions-section.tsx` — source transcription toggle + font scale.
 - `client/src/screens/settings/guardrails-section.tsx` — session-length warning + auto-stop config.
 - `client/src/screens/settings/about-section.tsx` — version, links, open-source credits.
@@ -121,7 +121,7 @@ Pure logic modules; no React, no DOM.
 
 ### Styles (`client/src/styles/`)
 
-- `client/src/styles/globals.css` — Tailwind directives + shadcn CSS variable tokens for 4 theme variants. No legacy styles.
+- `client/src/styles/globals.css` — Tailwind directives + shadcn CSS variable tokens for Light/Dark × Solid/Liquid glass themes, including Mica-like foundations, Acrylic-like panels, texture, blur, borders, and solid fallbacks.
 
 ### Providers (`client/src/providers/`)
 
@@ -178,6 +178,20 @@ Electron shell wrapping the client Vite output.
 - `desktop/src/telemetry.ts` — opt-in Posthog telemetry (session.started, session.ended, error.session).
 - `desktop/src/onboarding/` — First-run setup wizard (router + step screens + styles).
 
+## Remotion Workspace (`remotion/`)
+
+- `remotion/package.json` — Remotion preview/render scripts for intro MP4/GIF and app-info MP4/GIF.
+- `remotion/src/index.ts` — Remotion entry point; registers the composition root.
+- `remotion/src/remotion-root.tsx` — `IntroVideo` and `AppInfoVideo` composition metadata, dimensions, FPS, and duration.
+- `remotion/src/design-tokens.ts` — Shared white/neutral UI tokens, surfaces, timing helpers, and layout constants for the Remotion intro.
+- `remotion/src/intro-video.tsx` — Shared scene timeline for the short product intro animation.
+- `remotion/src/app-info-video.tsx` — App-info composition using the intro timeline with longer final hold/copy.
+- `remotion/src/scenes/title-scene.tsx` — shadcn-style Babel Mic shell opening scene.
+- `remotion/src/scenes/tagline-scene.tsx` — source-to-translation caption motion scene.
+- `remotion/src/scenes/flow-scene.tsx` — mic-to-realtime-to-cable-to-meeting routing scene.
+- `remotion/src/scenes/features-scene.tsx` — Setup Doctor readiness checklist scene.
+- `remotion/src/scenes/outro-scene.tsx` — final real Translate screen state.
+
 ## Scripts (`scripts/`)
 
 - `scripts/dev.sh` — starts client (Vite) + server (ts-node) in parallel.
@@ -202,6 +216,7 @@ Electron shell wrapping the client Vite output.
 
 - `plans/260511-0933-meeting-realtime-translator/` — Original 11-phase implementation plan.
 - `plans/260516-1604-ui-refactor-sidebar-shadcn/` — 8-phase React + shadcn sidebar shell refactor plan.
+- `plans/260517-0825-remotion-intro-gif-redesign/` — Remotion intro/app-info GIF redesign plan.
 - `plans/reports/` — Code reviews, brainstorming notes, language probe results.
 
 ## Key Dependencies
@@ -254,5 +269,5 @@ See `system-architecture.md` for detailed data flow + session lifecycle.
 |-----------|-----|-------|
 | Client TypeScript/TSX | ~4,500 | 7 screens + 14 hooks + providers + lib. |
 | Server TypeScript | ~200 | Minimal. |
-| Styles (CSS) | ~200 | globals.css only; all legacy styles.css deleted. |
+| Styles (CSS) | ~180 | globals.css only; all legacy styles.css deleted. |
 | **Total source** | **~4,900** | Excludes config, node_modules. |

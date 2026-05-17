@@ -55,7 +55,7 @@ export function AppShell(): React.JSX.Element {
       {/* Sonner toast host — top-right, rich color variants */}
       <Toaster position="top-right" richColors />
 
-      <div className="flex h-screen overflow-hidden bg-background text-foreground">
+      <div className="flex h-dvh overflow-hidden bg-background text-foreground">
         <Sidebar collapsed={collapsed} onToggle={toggleCollapsed}>
           {/* Nav fills available space */}
           <div className="flex-1 overflow-y-auto py-2">

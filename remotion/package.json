@@ -5,9 +5,9 @@
   "scripts": {
     "start": "remotion preview",
     "render": "remotion render IntroVideo out/intro.mp4",
-    "render:gif": "remotion render IntroVideo out/intro.gif --codec gif",
+    "render:gif": "remotion render IntroVideo out/intro.gif --codec gif --every-nth-frame 2",
     "render:app-info": "remotion render AppInfoVideo out/app-info.mp4",
-    "render:app-info:gif": "remotion render AppInfoVideo out/app-info.gif --codec gif"
+    "render:app-info:gif": "remotion render AppInfoVideo out/app-info.gif --codec gif --every-nth-frame 2"
   },
   "remotion": {
     "entryPoint": "src/index.ts"

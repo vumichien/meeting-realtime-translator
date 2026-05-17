@@ -1,37 +1,40 @@
 import React from 'react';
-import {TransitionSeries, linearTiming} from '@remotion/transitions';
-import {fade} from '@remotion/transitions/fade';
-import {slide} from '@remotion/transitions/slide';
+import {AbsoluteFill, Sequence} from 'remotion';
 import {TitleScene} from './scenes/title-scene';
 import {TaglineScene} from './scenes/tagline-scene';
 import {FlowScene} from './scenes/flow-scene';
-import {FeaturesScene} from './scenes/features-scene';
 import {OutroScene} from './scenes/outro-scene';
-import {SCENE} from './design-tokens';
+import {SCENE, TYPE} from './design-tokens';
 
-const trans = (frames: number) => linearTiming({durationInFrames: frames});
-const slideRight = slide({direction: 'from-right'});
+type IntroTimelineProps = {
+  finalFrames?: number;
+  finalCopy?: string;
+};
 
-export const IntroVideo: React.FC = () => (
-  <TransitionSeries>
-    <TransitionSeries.Sequence durationInFrames={SCENE.title}>
-      <TitleScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={slideRight} timing={trans(SCENE.transition)} />
-    <TransitionSeries.Sequence durationInFrames={SCENE.tagline}>
-      <TaglineScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={slideRight} timing={trans(SCENE.transition)} />
-    <TransitionSeries.Sequence durationInFrames={SCENE.flow}>
-      <FlowScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={fade()} timing={trans(SCENE.transition)} />
-    <TransitionSeries.Sequence durationInFrames={SCENE.features}>
-      <FeaturesScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Transition presentation={slideRight} timing={trans(SCENE.transition)} />
-    <TransitionSeries.Sequence durationInFrames={SCENE.outro}>
-      <OutroScene />
-    </TransitionSeries.Sequence>
-  </TransitionSeries>
-);
+export const IntroTimeline: React.FC<IntroTimelineProps> = ({
+  finalFrames = SCENE.outro,
+  finalCopy = 'Speak once. Meeting hears translation.',
+}) => {
+  const taglineStart = SCENE.title;
+  const flowStart = taglineStart + SCENE.tagline;
+  const outroStart = flowStart + SCENE.flow;
+
+  return (
+    <AbsoluteFill style={{fontFamily: TYPE.body}}>
+      <Sequence durationInFrames={SCENE.title}>
+        <TitleScene />
+      </Sequence>
+      <Sequence from={taglineStart} durationInFrames={SCENE.tagline}>
+        <TaglineScene />
+      </Sequence>
+      <Sequence from={flowStart} durationInFrames={SCENE.flow}>
+        <FlowScene />
+      </Sequence>
+      <Sequence from={outroStart} durationInFrames={finalFrames}>
+        <OutroScene copy={finalCopy} />
+      </Sequence>
+    </AbsoluteFill>
+  );
+};
+
+export const IntroVideo: React.FC = () => <IntroTimeline />;

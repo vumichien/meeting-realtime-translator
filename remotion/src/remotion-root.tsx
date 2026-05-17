@@ -4,18 +4,16 @@ import {IntroVideo} from './intro-video';
 import {AppInfoVideo} from './app-info-video';
 import {FPS, SCENE} from './design-tokens';
 
-// Total = sum of scenes − (transitions × overlap)
-// 120 + 120 + 210 + 150 + 90 − (4 × 15) = 630 frames = 21s
-const TOTAL_FRAMES =
-  SCENE.title + SCENE.tagline + SCENE.flow + SCENE.features + SCENE.outro -
-  4 * SCENE.transition;
+const BASE_FRAMES = SCENE.title + SCENE.tagline + SCENE.flow;
+export const INTRO_TOTAL_FRAMES = BASE_FRAMES + SCENE.outro;
+export const APP_INFO_TOTAL_FRAMES = BASE_FRAMES + SCENE.appInfoOutro;
 
 export const RemotionRoot: React.FC = () => (
   <>
     <Composition
       id="IntroVideo"
       component={IntroVideo}
-      durationInFrames={TOTAL_FRAMES}
+      durationInFrames={INTRO_TOTAL_FRAMES}
       fps={FPS}
       width={1280}
       height={720}
@@ -23,7 +21,7 @@ export const RemotionRoot: React.FC = () => (
     <Composition
       id="AppInfoVideo"
       component={AppInfoVideo}
-      durationInFrames={240}
+      durationInFrames={APP_INFO_TOTAL_FRAMES}
       fps={FPS}
       width={1280}
       height={720}

@@ -60,14 +60,18 @@ interface ThemeProviderProps {
 export function ThemeProvider({
   children,
   defaultColorMode = "system",
-  defaultSurfaceStyle = "solid",
+  defaultSurfaceStyle = "translucent",
 }: ThemeProviderProps): React.JSX.Element {
+  const platform = window.electron?.platform;
+  const resolvedSurfaceDefault =
+    platform === "linux" ? "solid" : defaultSurfaceStyle;
+
   const [colorMode, setColorModeState] = useState<ColorMode>(() =>
     readStorage<ColorMode>(STORAGE_COLOR_MODE, defaultColorMode),
   );
 
   const [surfaceStyle, setSurfaceStyleState] = useState<SurfaceStyle>(() =>
-    readStorage<SurfaceStyle>(STORAGE_SURFACE_STYLE, defaultSurfaceStyle),
+    readStorage<SurfaceStyle>(STORAGE_SURFACE_STYLE, resolvedSurfaceDefault),
   );
 
   // Apply CSS classes whenever color mode or surface style changes.

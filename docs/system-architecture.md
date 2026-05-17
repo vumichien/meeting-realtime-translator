@@ -33,6 +33,7 @@ Electron main (desktop/)
 ├─ starts Express backend on 127.0.0.1 with PORT=0
 ├─ passes random server URL through preload
 ├─ stores API key through safeStorage-backed IPC
+├─ exposes native surface style IPC for macOS vibrancy / Windows Mica
 ├─ opens first-run setup wizard until onboarding is complete
 └─ loads the existing Vite client in dev or client/dist in packaged builds
 ```
@@ -41,6 +42,10 @@ The browser developer flow remains unchanged: `npm run dev` starts the server on
 `127.0.0.1:8787` and the Vite client on `localhost:5173`. The desktop flow uses
 the same renderer code, but `window.electron.serverUrl` makes session minting hit
 the embedded random-port server directly.
+
+The renderer owns Light/Dark × Solid/Liquid glass theme state. In translucent
+mode it applies CSS Acrylic-like blur/tint to app surfaces and asks Electron to
+apply the platform backdrop where available.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

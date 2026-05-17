@@ -15,7 +15,7 @@ const COLOR_MODES: { value: ColorMode; label: string; description: string }[] = 
 
 const SURFACE_STYLES: { value: SurfaceStyle; label: string; description: string }[] = [
   { value: "solid", label: "Solid", description: "Opaque background" },
-  { value: "translucent", label: "Translucent", description: "Glass / acrylic effect (requires OS support)" },
+  { value: "translucent", label: "Liquid glass", description: "Mica base with acrylic panels and controls" },
 ];
 
 export function AppearanceSection(): React.JSX.Element {

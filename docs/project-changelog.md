@@ -4,6 +4,16 @@ All notable changes to Meeting Realtime Translator are documented here.
 
 ## [Unreleased] — UI shell refactor
 
+### Changed
+
+- Expanded translucent mode into a complete Liquid glass theme for the React shell.
+  - New installs default to translucent on supported platforms; Linux Electron keeps solid default.
+  - The app foundation, sidebar, headers, cards, dialogs, popovers, inputs, selects, tabs, and control bars now share Mica-like tinting and Acrylic-like blur.
+  - Added subtle texture/grid depth, stronger borders, inner highlights, `backdrop-filter` fallbacks, and no-horizontal-overflow verification.
+- Rebuilt the Remotion intro/app-info animations to mirror the real Translate screen.
+  - Replaced `docs/_images/intro.gif` and `docs/_images/app-info.gif` with short white/neutral UI GIFs.
+  - Updated GIF render scripts to downsample frames for smaller README-friendly assets.
+
 ### Refactored
 
 - `refactor(client): replace vanilla-TS UI with React 19 + shadcn sidebar shell`

@@ -1,9 +1,10 @@
 # Screenshots
 
-Screenshots referenced from the README and per-OS setup docs go here. They are intentionally empty in v1; capture and drop them in with these names:
+Screenshots and generated media referenced from the README and per-OS setup docs go here.
 
 - `app-main.png` — main app session showing source + translation captions
-- `app-info.gif` — Remotion app explainer animation
+- `intro.gif` — Remotion short intro animation
+- `app-info.gif` — Remotion app explainer animation used in README
 - `architecture.png` — high-level data-flow diagram
 - `win-zoom-audio.png` — Windows Zoom audio settings with `CABLE Output` selected
 - `mac-zoom-audio.png` — macOS Zoom audio settings with `BlackHole 2ch` selected

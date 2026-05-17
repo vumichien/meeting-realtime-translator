@@ -35,9 +35,24 @@
 
     --radius: 0.5rem;
 
-    /* Translucent surface defaults (no-op in solid mode) */
+    /* Translucent material defaults (no-op in solid mode) */
     --surface-alpha: 1;
     --bg-blur: 0px;
+    --glass-saturate: 1;
+    --surface-window: 205 46% 96%;
+    --surface-window-alpha: 0.82;
+    --surface-panel: 0 0% 100%;
+    --surface-panel-alpha: 0.7;
+    --surface-control: 210 38% 96%;
+    --surface-control-alpha: 0.58;
+    --surface-popover: 0 0% 100%;
+    --surface-popover-alpha: 0.92;
+    --surface-border: 211 32% 83%;
+    --surface-border-alpha: 0.62;
+    --surface-highlight: 0 0% 100%;
+    --surface-highlight-alpha: 0.62;
+    --surface-shadow: 0 24px 70px hsl(214 60% 18% / 0.14);
+    --surface-inner-shadow: inset 0 1px 0 hsl(var(--surface-highlight) / var(--surface-highlight-alpha));
   }
 
   .dark {
@@ -68,12 +83,48 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    --surface-window: 220 30% 8%;
+    --surface-window-alpha: 0.74;
+    --surface-panel: 220 28% 10%;
+    --surface-panel-alpha: 0.66;
+    --surface-control: 219 24% 16%;
+    --surface-control-alpha: 0.62;
+    --surface-popover: 220 24% 10%;
+    --surface-popover-alpha: 0.92;
+    --surface-border: 216 23% 31%;
+    --surface-border-alpha: 0.64;
+    --surface-highlight: 210 40% 98%;
+    --surface-highlight-alpha: 0.12;
+    --surface-shadow: 0 26px 80px hsl(0 0% 0% / 0.42);
+    --surface-inner-shadow: inset 0 1px 0 hsl(var(--surface-highlight) / var(--surface-highlight-alpha));
   }
 
-  /* Translucent surface modifier — applies on top of any color mode */
+  /* Mica-like foundation + Acrylic-like panels. */
   .translucent {
-    --surface-alpha: 0.55;
-    --bg-blur: 24px;
+    --background: var(--surface-window);
+    --card: var(--surface-panel);
+    --popover: var(--surface-popover);
+    --border: var(--surface-border);
+    --input: var(--surface-border);
+    --surface-alpha: var(--surface-panel-alpha);
+    --bg-blur: 30px;
+    --glass-saturate: 1.45;
+  }
+
+  .translucent body {
+    background:
+      linear-gradient(135deg, hsl(189 78% 82% / 0.22), transparent 34%),
+      linear-gradient(235deg, hsl(37 92% 78% / 0.18), transparent 42%),
+      linear-gradient(180deg, hsl(var(--surface-window) / 0.9), hsl(var(--surface-window) / 0.76));
+    background-attachment: fixed;
+  }
+
+  .translucent.dark body {
+    background:
+      linear-gradient(135deg, hsl(189 65% 30% / 0.2), transparent 36%),
+      linear-gradient(235deg, hsl(32 86% 42% / 0.16), transparent 44%),
+      linear-gradient(180deg, hsl(var(--surface-window) / 0.9), hsl(var(--surface-window) / 0.76));
   }
 }
 
@@ -84,5 +135,87 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Inter", sans-serif;
+  }
+  #app {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+  }
+}
+
+@layer components {
+  .translucent body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(90deg, hsl(var(--surface-highlight) / 0.07) 1px, transparent 1px),
+      linear-gradient(180deg, hsl(var(--surface-highlight) / 0.05) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 78%);
+    mask-image: linear-gradient(to bottom, black, transparent 78%);
+  }
+
+  .translucent body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.2;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  .translucent .bg-background,
+  .translucent [class*="bg-background/"] {
+    background-color: hsl(var(--surface-window) / var(--surface-window-alpha));
+    -webkit-backdrop-filter: blur(var(--bg-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--bg-blur)) saturate(var(--glass-saturate));
+  }
+
+  .translucent .bg-card {
+    background-color: hsl(var(--surface-panel) / var(--surface-panel-alpha));
+    -webkit-backdrop-filter: blur(var(--bg-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--bg-blur)) saturate(var(--glass-saturate));
+    box-shadow: var(--surface-inner-shadow), var(--surface-shadow);
+  }
+
+  .translucent .bg-popover {
+    background-color: hsl(var(--surface-popover) / var(--surface-popover-alpha));
+    -webkit-backdrop-filter: blur(var(--bg-blur)) saturate(1.6);
+    backdrop-filter: blur(var(--bg-blur)) saturate(1.6);
+    box-shadow: var(--surface-inner-shadow), var(--surface-shadow);
+  }
+
+  .translucent .bg-secondary,
+  .translucent .bg-accent,
+  .translucent .bg-muted,
+  .translucent [class*="bg-muted/"] {
+    background-color: hsl(var(--surface-control) / var(--surface-control-alpha));
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
+  }
+
+  .translucent :where(input, textarea, button, [role="combobox"], [role="tab"]) {
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
+  }
+
+  .translucent :where(.shadow, .shadow-sm, .shadow-md, .shadow-lg) {
+    box-shadow: var(--surface-inner-shadow), var(--surface-shadow);
+  }
+
+  .translucent .border-border,
+  .translucent .border-input {
+    border-color: hsl(var(--surface-border) / var(--surface-border-alpha));
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .translucent :where(.bg-background, [class*="bg-background/"], .bg-card, .bg-popover) {
+      background-color: hsl(var(--surface-window) / 0.96);
+    }
   }
 }
