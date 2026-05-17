@@ -16,6 +16,7 @@ export const TOUR_IDS = {
   sidebarNav: "sidebar-nav",
   navTranslate: "nav-translate",
   translateMain: "translate-main",
+  firstRunHero: "first-run-hero",
   sourceMicSelect: "source-mic-select",
   outputDeviceSelect: "output-device-select",
   targetLanguageSelect: "target-language-select",
@@ -50,10 +51,11 @@ export const GET_STARTED_TOUR_STEPS: GetStartedTourStep[] = [
   },
   {
     id: "translate-area",
-    target: tourTarget(TOUR_IDS.translateMain),
-    title: "Live translation",
-    content: "This area shows your captions and translated captions while a session is running.",
+    target: tourTarget(TOUR_IDS.firstRunHero),
+    title: "Ready to translate",
+    content: "This checklist confirms your mic, output device, and provider are set. All three green unlocks the Start button.",
     view: "translate",
+    placement: "bottom",
   },
   {
     id: "source-mic",
@@ -136,5 +138,6 @@ export const GET_STARTED_TOUR_STEPS: GetStartedTourStep[] = [
     title: "Fine tune behavior",
     content: "Adjust captions, cost guardrails, appearance, and app information from Settings.",
     view: "settings",
+    placement: "right",
   },
 ];

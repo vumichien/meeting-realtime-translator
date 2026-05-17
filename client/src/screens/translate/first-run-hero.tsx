@@ -58,7 +58,7 @@ export function FirstRunHero({ micDone, outputDone, providerDone, onStart }: Fir
 
   return (
     <div className="flex flex-1 items-center justify-center p-8">
-      <Card className="w-full max-w-sm shadow-md">
+      <Card className="w-full max-w-sm shadow-md" data-tour-id="first-run-hero">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Ready to translate</CardTitle>
           <CardDescription>Complete the steps below to start a live session.</CardDescription>

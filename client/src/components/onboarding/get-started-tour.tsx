@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Joyride,
   STATUS,
@@ -49,6 +49,13 @@ export function GetStartedTour({
   const complete = isGetStartedTourComplete(settings);
   const sessionIdle = session.state === "idle";
 
+  // Refs so the before() closures always read the latest values without
+  // invalidating the steps array (which would reset Joyride's step index).
+  const viewRef = useRef(view);
+  const collapsedRef = useRef(collapsed);
+  useEffect(() => { viewRef.current = view; }, [view]);
+  useEffect(() => { collapsedRef.current = collapsed; }, [collapsed]);
+
   const finishTour = useCallback(() => {
     setRun(false);
     markGetStartedTourComplete(setSetting);
@@ -78,20 +85,25 @@ export function GetStartedTour({
         content: step.content,
         placement: step.placement ?? "bottom",
         before: async () => {
-          if (step.view !== "current" && step.view !== view) {
-            setView(step.view);
+          const switchingView = step.view !== "current" && step.view !== viewRef.current;
+          if (switchingView) {
+            setView(step.view as View);
           }
-          if (shouldExpandSidebar(step) && collapsed) {
+          if (shouldExpandSidebar(step) && collapsedRef.current) {
             setCollapsed(false);
           }
           await waitForPaint();
+          // cross-view steps need an extra frame for the new screen to mount
+          if (switchingView) {
+            await waitForPaint();
+          }
           if (step.target !== "body") {
             const el = document.querySelector(step.target as string);
             el?.scrollIntoView({ block: "nearest", behavior: "instant" });
           }
         },
       })),
-    [collapsed, setCollapsed, setView, view],
+    [setCollapsed, setView],
   );
 
   useEffect(() => {
@@ -120,6 +132,7 @@ export function GetStartedTour({
       scrollToFirstStep
       steps={steps}
       tooltipComponent={TourTooltip}
+      arrowComponent={() => null}
       onEvent={handleEvent}
       options={{
         blockTargetInteraction: true,
