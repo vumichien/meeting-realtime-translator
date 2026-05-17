@@ -2,29 +2,32 @@
 
 All notable changes to Meeting Realtime Translator are documented here.
 
-## [Unreleased] — UI shell refactor
+## [v0.2.0] — 2026-05-17
+
+### Added
+
+- SRT subtitle export (`.srt`) in transcript detail dialog — translation segments only, relative timestamps.
+- SVG favicon for web client (`public/favicon.svg`, blue microphone icon).
+
+### Fixed
+
+- Translation captions now flow as a continuous paragraph instead of one entry per line.
+- Desktop app icon upgraded from 256×256 to 512×512 for crisp macOS Retina rendering.
 
 ### Changed
 
 - Expanded translucent mode into a complete Liquid glass theme for the React shell.
   - New installs default to translucent on supported platforms; Linux Electron keeps solid default.
-  - The app foundation, sidebar, headers, cards, dialogs, popovers, inputs, selects, tabs, and control bars now share Mica-like tinting and Acrylic-like blur.
-  - Added subtle texture/grid depth, stronger borders, inner highlights, `backdrop-filter` fallbacks, and no-horizontal-overflow verification.
-- Rebuilt the Remotion intro/app-info animations to mirror the real Translate screen.
+  - App shell, sidebar, headers, cards, dialogs, popovers, inputs, selects, tabs, and control bars share Mica-like tinting and Acrylic-like blur.
+  - Added texture/grid depth, stronger borders, inner highlights, and `backdrop-filter` fallbacks.
+- Rebuilt Remotion intro/app-info animations to mirror the real Translate screen.
   - Replaced `docs/_images/intro.gif` and `docs/_images/app-info.gif` with short white/neutral UI GIFs.
-  - Updated GIF render scripts to downsample frames for smaller README-friendly assets.
 
 ### Refactored
 
-- `refactor(client): replace vanilla-TS UI with React 19 + shadcn sidebar shell`
-  - Deleted: `client/src/app.ts`, `client/src/main.ts`, `client/src/styles.css`, `client/src/debug-panel.ts`, all `client/src/ui/*.ts` (11 files), `client/src/lib/{session-controller,meeting-profile-controller,debug-helpers,debug-metrics,debug-vu-bindings,event-buffer,session-cost-estimate}.ts`, and empty dirs `ui/layout/` + `ui/views/`.
-  - Renamed: `client/src/main-react.tsx` → `client/src/main.tsx`; mount point `#app-react` → `#app`; removed legacy `display:none` guard.
-  - `client/index.html` now has a single `<div id="app">` and a single `<script src="/src/main.tsx">` — no dual-boot.
-  - `client/tsconfig.json` exclude block removed; all `src/**` now typechecks clean.
-  - `client/src/lib/debug-bundle.ts` retained: used by `debug-event-log.tsx` (diagnostics screen "Copy redacted bundle").
-  - Architecture: React 19 + Tailwind v4 + shadcn/ui sidebar shell. 7 screens. 14 hooks wrapping vanilla logic modules. 4-way theme (Light/Dark × Solid/Translucent). Electron Mica/vibrancy preserved.
-  - Bundle: JS 153 kB gzip, CSS 7.5 kB gzip (`vite build` 2026-05-16).
-  - Plan: `plans/260516-1604-ui-refactor-sidebar-shadcn/`
+- Replaced vanilla-TS UI with React 19 + shadcn/ui sidebar shell.
+  - Architecture: React 19 + Tailwind v4 + shadcn/ui sidebar. 7 screens. 14 hooks wrapping vanilla logic modules. 4-way theme (Light/Dark × Solid/Translucent).
+  - Bundle: JS 153 kB gzip, CSS 7.5 kB gzip.
 
 ## [v0.2.0-rc.1] — 2026-05-15
 
