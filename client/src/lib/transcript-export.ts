@@ -106,7 +106,7 @@ function toSrt(snapshot: TranscriptSnapshot): string {
   return lines.join("\n");
 }
 
-function msToSrtTime(ms: number): string {
+export function msToSrtTime(ms: number): string {
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   const s = Math.floor((ms % 60_000) / 1_000);

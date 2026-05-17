@@ -12,8 +12,41 @@ import { useApiKeyProvider } from "@/hooks/use-api-key";
 import { FirstRunHero } from "./first-run-hero";
 import { CaptionsCanvas } from "./captions-canvas";
 import { CompactControlBar } from "./compact-control-bar";
-import { downloadTranscript } from "@/lib/transcript-export";
+import { downloadTranscript, msToSrtTime } from "@/lib/transcript-export";
+import type { CaptionEntry } from "@/captions";
 import { toast } from "sonner";
+
+const CAPTION_PUNCT = /[.!?。？！]\s*$/;
+
+/** Build SRT from raw caption entries using their performance.now() timestamps. */
+function captionEntriesToSrt(entries: CaptionEntry[]): string {
+  if (entries.length === 0) return "";
+  const firstTs = entries[0].ts;
+  const lines: string[] = [];
+  let idx = 1;
+  let buf = "";
+  let sentStartMs = 0;
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const relMs = Math.round(Math.max(0, entry.ts - firstTs));
+    if (buf === "") sentStartMs = relMs;
+    buf += entry.text;
+
+    const isLast = i === entries.length - 1;
+    if (CAPTION_PUNCT.test(buf) || isLast) {
+      const nextRelMs = Math.round(Math.max(0, (entries[i + 1]?.ts ?? entry.ts + 3000) - firstTs));
+      const endMs = Math.max(sentStartMs + 500, nextRelMs);
+      lines.push(`${idx}`);
+      lines.push(`${msToSrtTime(sentStartMs)} --> ${msToSrtTime(endMs)}`);
+      lines.push(buf.trim());
+      lines.push("");
+      idx++;
+      buf = "";
+    }
+  }
+  return lines.join("\n");
+}
 
 /**
  * Translate screen root. Composes hero-or-canvas with a persistent control bar.
@@ -69,24 +102,42 @@ export function TranslateScreen(): React.JSX.Element {
   const handleExport = useCallback(
     (format: "txt" | "srt" | "json") => {
       if (format === "srt") {
-        const hasTarget = snapshot.segments.some((s) => s.kind === "target");
-        if (!hasTarget) {
-          toast.warning("No translation segments to export yet.");
+        // Prefer transcript store (sentence-level, absolute timestamps).
+        // Fall back to caption-entry SRT if transcript store wasn't populated.
+        const hasTranscriptTarget = snapshot.segments.some((s) => s.kind === "target");
+        if (hasTranscriptTarget) {
+          downloadTranscript(snapshot, "srt");
+          toast.success("Transcript exported as .srt");
           return;
         }
-        downloadTranscript(snapshot, "srt");
+        if (translation.length === 0) {
+          toast.warning("No translation to export yet.");
+          return;
+        }
+        const srtContent = captionEntriesToSrt(translation);
+        const blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transcript.srt";
+        a.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 500);
         toast.success("Transcript exported as .srt");
         return;
       }
+
       let content: string;
       let mimeType: string;
       let ext: string;
+
       if (format === "txt") {
-        const srcSegs = snapshot.segments.filter((s) => s.kind === "source");
-        const tgtSegs = snapshot.segments.filter((s) => s.kind === "target");
+        // Always read from caption store — it's populated from live streaming deltas
+        // and works even when the transcript store hasn't flushed sentences yet.
+        const srcText = source.map((e) => e.text).join("").trim();
+        const tgtText = translation.map((e) => e.text).join("").trim();
         const parts: string[] = [];
-        if (srcSegs.length > 0) parts.push(`Source:\n${srcSegs.map((s) => s.text).join(" ")}`);
-        if (tgtSegs.length > 0) parts.push(`Translation:\n${tgtSegs.map((s) => s.text).join(" ")}`);
+        if (srcText) parts.push(`Source:\n${srcText}`);
+        if (tgtText) parts.push(`Translation:\n${tgtText}`);
         content = parts.join("\n\n") || "(no transcript)";
         mimeType = "text/plain;charset=utf-8";
         ext = "txt";
@@ -95,6 +146,7 @@ export function TranslateScreen(): React.JSX.Element {
         mimeType = "application/json;charset=utf-8";
         ext = "json";
       }
+
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
