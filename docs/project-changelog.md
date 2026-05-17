@@ -8,10 +8,12 @@ All notable changes to Meeting Realtime Translator are documented here.
 
 - SRT subtitle export (`.srt`) in transcript detail dialog — translation segments only, relative timestamps.
 - SVG favicon for web client (`public/favicon.svg`, blue microphone icon).
+- One-time **Get started** guided tour in the shared React renderer, covering translation controls, devices, providers, Setup Doctor, profiles, transcripts, and settings.
 
 ### Fixed
 
 - Translation captions now flow as a continuous paragraph instead of one entry per line.
+- Electron dev mode now allows the Vite React-refresh preamble under a dev-only CSP allowance, so the shared renderer loads for desktop smoke testing.
 - Desktop app icon upgraded from 256×256 to 512×512 for crisp macOS Retina rendering.
 
 ### Changed

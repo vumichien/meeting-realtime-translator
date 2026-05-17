@@ -37,6 +37,9 @@ Complete file inventory of Meeting Realtime Translator. One line per file: path 
 
 - `client/src/components/shell/app-shell.tsx` — Root layout: sidebar + content pane router. 7 named routes.
 - `client/src/components/shell/sidebar-nav.tsx` — shadcn `Sidebar` navigation with icons per screen.
+- `client/src/components/onboarding/get-started-tour.tsx` — One-time Joyride tour mounted at the shared renderer shell.
+- `client/src/components/onboarding/get-started-tour-steps.ts` — Stable tour selectors, target views, and concise first-run copy.
+- `client/src/components/onboarding/get-started-tour-storage.ts` — Typed settings helpers for tour completion/version persistence.
 - `client/src/components/theme/theme-provider.tsx` — React context wrapping CSS variable–based 4-way theme (Light/Dark × Solid/Liquid glass), defaulting to translucent on supported platforms.
 - `client/src/components/theme/theme-toggle.tsx` — Dropdown to switch active theme variant.
 - `client/src/components/ui/` — shadcn/ui primitives: button, card, dialog, dropdown-menu, input, label, scroll-area, select, separator, sidebar, switch, tabs, textarea, toggle, tooltip.
@@ -225,6 +228,7 @@ Electron shell wrapping the client Vite output.
 
 - **react 19** — UI framework with concurrent rendering.
 - **@radix-ui / shadcn-ui** — Accessible component primitives.
+- **react-joyride** — One-time guided tour overlay for first-run app orientation.
 - **tailwindcss v4** — Utility-first CSS with CSS variable tokens.
 - **vite** — Build tool + dev server.
 - **typescript** — Strict type checking.

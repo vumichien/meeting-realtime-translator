@@ -33,6 +33,19 @@ The `plans/260514-1528-user-support-functions/` plan is implemented as a support
 - Browser support validation report keeps Firefox/Safari unvalidated.
 - Listener Mode researched and deferred to a dedicated MVP plan.
 
+## Get Started Guided Tour
+
+**Updated:** 2026-05-17
+
+Implements `plans/260517-1502-get-started-guided-tour/`. Adds a one-time
+React renderer tour for browser and Electron users:
+
+- React Joyride tour mounted in `AppShell`.
+- Completion/version persisted through typed `settings.ts` localStorage keys.
+- Stable `data-tour-id` anchors across Translate, Devices, Providers,
+  Diagnostics, Profiles, Transcripts, and Settings.
+- Desktop setup wizard stays separate; guided tour teaches the main app UI.
+
 ## v0.1.0 Completion Summary
 
 **Release date:** 2026-05-11

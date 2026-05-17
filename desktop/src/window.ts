@@ -14,7 +14,7 @@ export async function createMainWindow(options: MainWindowOptions): Promise<Brow
     callback(permission === "media");
   });
 
-  applyContentSecurityPolicy(options.serverUrl);
+  applyContentSecurityPolicy(options.serverUrl, options.isDev);
 
   const win = new BrowserWindow({
     width: 1180,
@@ -78,12 +78,14 @@ export function getPreloadPath(outDir: string): string {
 }
 
 let cspApplied = false;
-function applyContentSecurityPolicy(serverUrl: string): void {
+function applyContentSecurityPolicy(serverUrl: string, isDev: boolean): void {
   if (cspApplied) return;
   cspApplied = true;
   const connectSrc = [
     "'self'",
     serverUrl,
+    isDev ? "http://localhost:5173" : "",
+    isDev ? "ws://localhost:5173" : "",
     "https://api.openai.com",
     "wss://api.openai.com",
     "https://generativelanguage.googleapis.com",
@@ -93,9 +95,10 @@ function applyContentSecurityPolicy(serverUrl: string): void {
   ]
     .filter(Boolean)
     .join(" ");
+  const scriptSrc = isDev ? "script-src 'self' 'unsafe-inline'" : "script-src 'self'";
   const directives = [
     "default-src 'self'",
-    "script-src 'self'",
+    scriptSrc,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "media-src 'self' blob: mediastream:",

@@ -85,6 +85,7 @@ export function ProvidersScreen(): React.JSX.Element {
       <div
         role="radiogroup"
         aria-label="Translation provider"
+        data-tour-id="providers-list"
         className="mt-6 flex flex-col gap-3"
       >
         {PROVIDER_META.map((meta) => {

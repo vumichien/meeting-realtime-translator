@@ -59,6 +59,8 @@ Open a GitHub issue if setup fails or you need a feature. Star the project if Ba
 
 You can rerun the wizard later from **Help → Run setup wizard again**.
 
+After the main window opens, Babel Mic shows a short **Get started** tour once. Use it to find the translation controls, device setup, Setup Doctor, profiles, transcripts, and settings. Click **Skip** or finish the tour to stop it from appearing automatically again.
+
 ## Daily Use
 
 1. Open Babel Mic.

@@ -48,7 +48,7 @@ export function SetupDoctorPanel(): React.JSX.Element {
   const { latest, running, run } = useSetupDoctor();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour-id="setup-doctor">
       <div className="flex items-center gap-3">
         <Button onClick={run} disabled={running} size="sm">
           {running && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}

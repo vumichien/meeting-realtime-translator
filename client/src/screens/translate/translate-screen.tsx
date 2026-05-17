@@ -19,6 +19,15 @@ import { toast } from "sonner";
 
 const CAPTION_PUNCT = /[.!?。？！]\s*$/;
 
+function isKeyboardControlTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return Boolean(
+    target.closest(
+      'input, textarea, select, button, a, [role="button"], [contenteditable="true"]',
+    ),
+  );
+}
+
 /** Build SRT from raw caption entries using their performance.now() timestamps. */
 function captionEntriesToSrt(entries: CaptionEntry[]): string {
   if (entries.length === 0) return "";
@@ -210,8 +219,7 @@ export function TranslateScreen(): React.JSX.Element {
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
       if (e.code !== "Space" && e.key !== " ") return;
-      const tag = (e.target as HTMLElement | null)?.tagName ?? "";
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (isKeyboardControlTarget(e.target)) return;
       e.preventDefault();
       handleToggle();
     };
@@ -222,7 +230,7 @@ export function TranslateScreen(): React.JSX.Element {
   return (
     <div className="flex h-full flex-col">
       {/* Main area: hero or captions */}
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col" data-tour-id="translate-main">
         {showHero ? (
           <FirstRunHero
             micDone={micDone}

@@ -42,10 +42,19 @@ The browser developer flow remains unchanged: `npm run dev` starts the server on
 `127.0.0.1:8787` and the Vite client on `localhost:5173`. The desktop flow uses
 the same renderer code, but `window.electron.serverUrl` makes session minting hit
 the embedded random-port server directly.
+In Electron dev mode, the Content Security Policy allows Vite's local
+React-refresh preamble and websocket while packaged builds keep the stricter
+script policy.
 
 The renderer owns Light/Dark × Solid/Liquid glass theme state. In translucent
 mode it applies CSS Acrylic-like blur/tint to app surfaces and asks Electron to
 apply the platform backdrop where available.
+
+The shared renderer also owns the one-time **Get started** tour. Browser and
+Electron builds use the same React Joyride component and `settings.ts`
+localStorage keys (`mt.get_started_tour_completed_at`,
+`mt.get_started_tour_version`), so Skip/Done persistence stays renderer-local
+without main-process IPC.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -280,16 +289,18 @@ interface SessionEvent {
 
 ### Settings (localStorage)
 ```typescript
-interface Settings {
-  sourceMicId: string     // selected microphone device ID
-  outputSpeakerId: string // cable playback-side device ID
-  targetLanguage: string  // e.g., 'en', 'es', 'fr'
-  sourceTranscription: boolean
-  captionFlushIdleMs: number
-  captionFlushOnPunctuation: boolean
-  meetingProfiles: MeetingProfile[]
-  sessionWarningMinutes: number
-  sessionAutoStopMinutes: number // 0 = off
+interface SettingsStore {
+  "mt.mic_device_id": string
+  "mt.output_device_id": string
+  "mt.target_lang": string
+  "mt.transcribe_source": boolean
+  "mt.captions_flush_idle_ms": number
+  "mt.captions_flush_on_punctuation": boolean
+  "mt.meeting_profiles": MeetingProfile[]
+  "mt.session_warning_minutes": number
+  "mt.session_auto_stop_minutes": number // 0 = off
+  "mt.get_started_tour_completed_at": string
+  "mt.get_started_tour_version": number
 }
 ```
 
@@ -302,6 +313,7 @@ interface Settings {
 | **Captions via data channel** | Low latency + independent from main audio track. |
 | **Shared AudioContext singleton** | Browser resource constraint. Context reused across session cycles safely. |
 | **Settings in localStorage** | Simple, no backend persistence. Trade-off: TLS not required for local backend. |
+| **Guided tour in shared renderer** | Browser and Electron receive the same first-run instruction layer; setup wizard remains installation-focused. |
 | **Debug panel inline in app** | No DevTools dependency. Real-time metrics + export for bug reports. |
 | **Support bundle excludes transcripts** | Debug data helps support without silently exporting meeting content. |
 | **Profiles local-only** | Device labels/IDs can be personal; no cloud sync. |

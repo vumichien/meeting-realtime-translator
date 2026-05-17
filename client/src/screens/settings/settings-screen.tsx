@@ -33,7 +33,7 @@ export function SettingsScreen(): React.JSX.Element {
         Customize Babel Mic appearance, captions, and session guardrails.
       </p>
 
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8" data-tour-id="settings-sections">
         <SettingsSection title="Appearance">
           <AppearanceSection />
         </SettingsSection>

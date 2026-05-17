@@ -43,30 +43,32 @@ export function ProfilesScreen(): React.JSX.Element {
         </Button>
       </div>
 
-      {profiles.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center gap-3 text-center">
-          <p className="text-sm text-muted-foreground">
-            No profiles yet. Create one to quickly restore your device and language settings.
-          </p>
-          <Button variant="outline" onClick={handleCreate} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Create first profile
-          </Button>
-        </div>
-      ) : (
-        <div className="mt-6 flex flex-col gap-3">
-          {profiles.map((profile) => (
-            <ProfileCard
-              key={profile.id}
-              profile={profile}
-              isActive={profile.id === activeId}
-              onUse={setActive}
-              onEdit={handleEdit}
-              onDelete={remove}
-            />
-          ))}
-        </div>
-      )}
+      <div data-tour-id="profiles-list">
+        {profiles.length === 0 ? (
+          <div className="mt-10 flex flex-col items-center gap-3 text-center">
+            <p className="text-sm text-muted-foreground">
+              No profiles yet. Create one to quickly restore your device and language settings.
+            </p>
+            <Button variant="outline" onClick={handleCreate} className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              Create first profile
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-6 flex flex-col gap-3">
+            {profiles.map((profile) => (
+              <ProfileCard
+                key={profile.id}
+                profile={profile}
+                isActive={profile.id === activeId}
+                onUse={setActive}
+                onEdit={handleEdit}
+                onDelete={remove}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <ProfileFormDialog
         open={dialogOpen}

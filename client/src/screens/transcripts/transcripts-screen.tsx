@@ -30,23 +30,25 @@ export function TranscriptsScreen(): React.JSX.Element {
         </p>
       </div>
 
-      {sessions.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center gap-2 text-center">
-          <p className="text-sm text-muted-foreground">
-            No transcripts yet. Completed translation sessions will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 flex flex-col gap-2">
-          {sessions.map((session) => (
-            <TranscriptCard
-              key={session.id}
-              session={session}
-              onClick={handleOpen}
-            />
-          ))}
-        </div>
-      )}
+      <div data-tour-id="transcripts-list">
+        {sessions.length === 0 ? (
+          <div className="mt-10 flex flex-col items-center gap-2 text-center">
+            <p className="text-sm text-muted-foreground">
+              No transcripts yet. Completed translation sessions will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 flex flex-col gap-2">
+            {sessions.map((session) => (
+              <TranscriptCard
+                key={session.id}
+                session={session}
+                onClick={handleOpen}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <TranscriptDetailDialog
         session={selected}

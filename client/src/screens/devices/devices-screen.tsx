@@ -49,7 +49,7 @@ export function DevicesScreen(): React.JSX.Element {
         onRequestPermission={devices.requestPermission}
       />
 
-      <Card>
+      <Card data-tour-id="devices-audio-card">
         <CardHeader>
           <CardTitle className="text-base">Audio devices</CardTitle>
         </CardHeader>

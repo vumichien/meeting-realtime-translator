@@ -79,6 +79,7 @@ export function SidebarNav({
       ref={navRef}
       role="navigation"
       aria-label="Main navigation"
+      data-tour-id="sidebar-nav"
       className="flex flex-col gap-0.5 px-2"
     >
       {NAV_ITEMS.map(({ id, label, icon: Icon }, index) => {
@@ -88,6 +89,7 @@ export function SidebarNav({
           <Button
             key={id}
             data-nav-item
+            data-tour-id={`nav-${id}`}
             variant={isActive ? "secondary" : "ghost"}
             aria-current={isActive ? "page" : undefined}
             onClick={() => onSelect(id)}

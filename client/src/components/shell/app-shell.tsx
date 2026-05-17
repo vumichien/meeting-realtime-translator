@@ -11,6 +11,7 @@ import { SessionPill } from "./session-pill";
 import { ScreenHeader } from "./screen-header";
 import { ScreenRouter, VIEW_TITLES } from "./screen-router";
 import { ThemeToggle } from "./theme-toggle";
+import { GetStartedTour } from "@/components/onboarding/get-started-tour";
 import type { View } from "./shell-types";
 
 // Re-export View so callers can import it from app-shell if preferred
@@ -54,6 +55,12 @@ export function AppShell(): React.JSX.Element {
     <TooltipProvider delayDuration={300}>
       {/* Sonner toast host — top-right, rich color variants */}
       <Toaster position="top-right" richColors />
+      <GetStartedTour
+        view={view}
+        setView={setView}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
       <div className="flex h-dvh overflow-hidden bg-background text-foreground">
         <Sidebar collapsed={collapsed} onToggle={toggleCollapsed}>

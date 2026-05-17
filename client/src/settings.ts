@@ -27,6 +27,8 @@ export interface SettingsStore {
   "mt.gemini_service_account_json": string;
   "mt.gemini_project": string;
   "mt.gemini_region": string;
+  "mt.get_started_tour_completed_at": string;
+  "mt.get_started_tour_version": number;
 }
 
 export type SettingsKey = keyof SettingsStore;
@@ -53,6 +55,8 @@ export const DEFAULT_SETTINGS: SettingsStore = {
   "mt.gemini_service_account_json": "",
   "mt.gemini_project": "",
   "mt.gemini_region": "us-central1",
+  "mt.get_started_tour_completed_at": "",
+  "mt.get_started_tour_version": 0,
 };
 
 export interface Settings {
