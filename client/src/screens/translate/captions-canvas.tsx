@@ -11,9 +11,11 @@ interface CaptionPanelProps {
   entries: CaptionEntry[];
   /** Additional class names for the panel wrapper */
   className?: string;
+  /** "translation" applies per-entry colored backgrounds; "source" uses subtle gray for non-final only */
+  variant?: "source" | "translation";
 }
 
-function CaptionPanel({ label, entries, className }: CaptionPanelProps): React.JSX.Element {
+function CaptionPanel({ label, entries, className, variant = "source" }: CaptionPanelProps): React.JSX.Element {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isPinnedRef = useRef(true);
 
@@ -59,8 +61,12 @@ function CaptionPanel({ label, entries, className }: CaptionPanelProps): React.J
                 {i > 0 && " "}
                 <span
                   className={cn(
-                    "transition-colors",
-                    !entry.final && "bg-primary/5 font-medium rounded px-0.5",
+                    "transition-colors rounded px-0.5",
+                    variant === "translation"
+                      ? entry.final
+                        ? "bg-sky-100/80 dark:bg-sky-900/40"
+                        : "bg-amber-100 dark:bg-amber-900/50 font-medium"
+                      : !entry.final && "bg-primary/5 font-medium",
                   )}
                 >
                   {entry.text}
@@ -94,6 +100,7 @@ export function CaptionsCanvas({ source, translation }: CaptionsCanvasProps): Re
       <CaptionPanel
         label="Translation"
         entries={translation}
+        variant="translation"
       />
     </div>
   );
