@@ -23,12 +23,15 @@ export function TranslateScreen(): React.JSX.Element {
   const { source, translation, clear: clearCaptions } = useCaptions();
   const devices = useDevices();
   const { get: getSettings, set: setSettings } = useSettings();
-  const { entries, snapshot } = useTranscript();
+  const { entries, snapshot, clear: clearTranscript } = useTranscript();
   const { hasKey } = useApiKeyProvider();
 
   const targetLang = getSettings("mt.target_lang");
   const isIdle = session.state === "idle";
-  const showHero = isIdle && entries.length === 0;
+  // Keep captions visible after stop as long as any content exists (caption or transcript).
+  // Only show hero when truly empty — i.e. never started or explicitly cleared.
+  const hasContent = entries.length > 0 || source.length > 0 || translation.length > 0;
+  const showHero = isIdle && !hasContent;
 
   // "Selected" requires the persisted ID to still exist in the enumerated list —
   // a stale localStorage ID alone is not enough (e.g. mic permission not yet granted,
@@ -106,8 +109,9 @@ export function TranslateScreen(): React.JSX.Element {
 
   const handleClear = useCallback(() => {
     clearCaptions();
+    clearTranscript();
     toast.info("Captions cleared");
-  }, [clearCaptions]);
+  }, [clearCaptions, clearTranscript]);
 
   const handleToggle = useCallback(() => {
     if (session.state === "idle" || session.state === "failed" || session.state === "closed") {
