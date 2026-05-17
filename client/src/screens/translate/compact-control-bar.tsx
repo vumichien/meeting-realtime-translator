@@ -30,7 +30,7 @@ interface CompactControlBarProps {
   onStart: () => void;
   onStop: () => void;
   onClear: () => void;
-  onExport: (format: "json" | "txt") => void;
+  onExport: (format: "txt" | "srt" | "json") => void;
 }
 
 function deviceLabel(device: DeviceInfo): string {
@@ -78,8 +78,9 @@ export function CompactControlBar({
   const isRunning = sessionState === "connected" || sessionState === "connecting";
   const isConnecting = sessionState === "connecting";
 
-  const handleExportJson = useCallback(() => onExport("json"), [onExport]);
   const handleExportTxt = useCallback(() => onExport("txt"), [onExport]);
+  const handleExportSrt = useCallback(() => onExport("srt"), [onExport]);
+  const handleExportJson = useCallback(() => onExport("json"), [onExport]);
 
   return (
     <div className="shrink-0 border-t border-border bg-background/95 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -173,10 +174,21 @@ export function CompactControlBar({
           onClick={handleExportTxt}
           className="h-9 gap-1.5 text-xs"
           aria-label="Export as text"
-          title="Export transcript as .txt"
+          title="Export transcript as .txt (paragraphs)"
         >
           <Download className="h-3 w-3" />
           TXT
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleExportSrt}
+          className="h-9 gap-1.5 text-xs"
+          aria-label="Export as subtitles"
+          title="Export translation as .srt subtitle file"
+        >
+          <Download className="h-3 w-3" />
+          SRT
         </Button>
         <Button
           size="sm"

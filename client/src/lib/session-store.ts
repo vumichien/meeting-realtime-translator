@@ -48,6 +48,9 @@ export interface SessionStoreDeps {
   latency: LatencyWarning;
 }
 
+const TRANSCRIPT_FLUSH_IDLE_MS = 2000;
+const SENTENCE_END_RE = /[.!?。？！]\s*$/;
+
 export function createSessionStore(deps: SessionStoreDeps): SessionStore {
   const { settings, apiKey, captions, transcript, latency } = deps;
 
@@ -56,6 +59,48 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
   let durationMs = 0;
   let error: string | null = null;
   const cost: SessionCost = { estimatedUsd: 0 };
+
+  // ─── Transcript accumulation ──────────────────────────────────────────────
+  let srcBuffer = "";
+  let tgtBuffer = "";
+  let srcFlushTimer: number | undefined;
+  let tgtFlushTimer: number | undefined;
+
+  function flushTranscript(kind: "source" | "target"): void {
+    if (kind === "source") {
+      const trimmed = srcBuffer.trim();
+      if (trimmed) transcript.append("source", trimmed);
+      srcBuffer = "";
+      if (srcFlushTimer !== undefined) { clearTimeout(srcFlushTimer); srcFlushTimer = undefined; }
+    } else {
+      const trimmed = tgtBuffer.trim();
+      if (trimmed) transcript.append("target", trimmed);
+      tgtBuffer = "";
+      if (tgtFlushTimer !== undefined) { clearTimeout(tgtFlushTimer); tgtFlushTimer = undefined; }
+    }
+  }
+
+  function scheduleTranscriptFlush(kind: "source" | "target", delta: string): void {
+    // Ignore deltas that arrive after session stop (provider may emit events during shutdown).
+    if (state === "idle" || state === "closed") return;
+    if (kind === "source") {
+      srcBuffer += delta;
+      if (srcFlushTimer !== undefined) clearTimeout(srcFlushTimer);
+      if (SENTENCE_END_RE.test(srcBuffer)) {
+        flushTranscript("source");
+      } else {
+        srcFlushTimer = window.setTimeout(() => { if (srcBuffer) flushTranscript("source"); }, TRANSCRIPT_FLUSH_IDLE_MS);
+      }
+    } else {
+      tgtBuffer += delta;
+      if (tgtFlushTimer !== undefined) clearTimeout(tgtFlushTimer);
+      if (SENTENCE_END_RE.test(tgtBuffer)) {
+        flushTranscript("target");
+      } else {
+        tgtFlushTimer = window.setTimeout(() => { if (tgtBuffer) flushTranscript("target"); }, TRANSCRIPT_FLUSH_IDLE_MS);
+      }
+    }
+  }
 
   let handle: SessionHandle | null = null;
   let startedAt = 0;
@@ -92,6 +137,7 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
 
   // ─── Stop ─────────────────────────────────────────────────────────────────
   function stop(reason: "user" | "error" = "user"): void {
+    if (state === "idle") return; // guard against double-stop
     handle?.stop();
     handle = null;
 
@@ -101,6 +147,10 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
         end_reason: reason,
       });
     }
+
+    // Flush remaining buffered text before snapshotting for history.
+    flushTranscript("source");
+    flushTranscript("target");
 
     // Persist completed session to transcript history before clearing state.
     const snap = transcript.snapshot();
@@ -136,6 +186,8 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
     if (handle) return; // already running
 
     error = null;
+    srcBuffer = "";
+    tgtBuffer = "";
     captions.clear();
     transcript.beginSession(settings.get("mt.target_lang"));
     state = "connecting";
@@ -159,12 +211,14 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
             if (delta) {
               const ts = performance.now();
               captions.appendSource({ id: `src-${ts}`, text: delta, final: false, ts });
+              scheduleTranscriptFlush("source", delta);
             }
           } else if (ev.type === "session.output_transcript.delta") {
             const delta = (ev as { delta: string }).delta;
             if (delta) {
               const ts = performance.now();
               captions.appendTranslation({ id: `tgt-${ts}`, text: delta, final: false, ts });
+              scheduleTranscriptFlush("target", delta);
             }
           }
         },

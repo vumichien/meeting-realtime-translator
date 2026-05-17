@@ -12,6 +12,7 @@ import { useApiKeyProvider } from "@/hooks/use-api-key";
 import { FirstRunHero } from "./first-run-hero";
 import { CaptionsCanvas } from "./captions-canvas";
 import { CompactControlBar } from "./compact-control-bar";
+import { downloadTranscript } from "@/lib/transcript-export";
 import { toast } from "sonner";
 
 /**
@@ -22,7 +23,7 @@ export function TranslateScreen(): React.JSX.Element {
   const { source, translation, clear: clearCaptions } = useCaptions();
   const devices = useDevices();
   const { get: getSettings, set: setSettings } = useSettings();
-  const { entries } = useTranscript();
+  const { entries, snapshot } = useTranscript();
   const { hasKey } = useApiKeyProvider();
 
   const targetLang = getSettings("mt.target_lang");
@@ -62,28 +63,45 @@ export function TranslateScreen(): React.JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [devices.mics.length, devices.outputs.length]);
 
-  // Export handler: triggers browser download via blob
   const handleExport = useCallback(
-    (format: "json" | "txt") => {
-      // Build minimal export from current captions
-      const lines = [
-        ...source.map((e) => `[source] ${e.text}`),
-        ...translation.map((e) => `[translation] ${e.text}`),
-      ];
-      const content =
-        format === "json"
-          ? JSON.stringify({ source, translation }, null, 2)
-          : lines.join("\n");
-      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    (format: "txt" | "srt" | "json") => {
+      if (format === "srt") {
+        const hasTarget = snapshot.segments.some((s) => s.kind === "target");
+        if (!hasTarget) {
+          toast.warning("No translation segments to export yet.");
+          return;
+        }
+        downloadTranscript(snapshot, "srt");
+        toast.success("Transcript exported as .srt");
+        return;
+      }
+      let content: string;
+      let mimeType: string;
+      let ext: string;
+      if (format === "txt") {
+        const srcSegs = snapshot.segments.filter((s) => s.kind === "source");
+        const tgtSegs = snapshot.segments.filter((s) => s.kind === "target");
+        const parts: string[] = [];
+        if (srcSegs.length > 0) parts.push(`Source:\n${srcSegs.map((s) => s.text).join(" ")}`);
+        if (tgtSegs.length > 0) parts.push(`Translation:\n${tgtSegs.map((s) => s.text).join(" ")}`);
+        content = parts.join("\n\n") || "(no transcript)";
+        mimeType = "text/plain;charset=utf-8";
+        ext = "txt";
+      } else {
+        content = JSON.stringify({ source, translation }, null, 2);
+        mimeType = "application/json;charset=utf-8";
+        ext = "json";
+      }
+      const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `transcript.${format}`;
+      a.download = `transcript.${ext}`;
       a.click();
-      URL.revokeObjectURL(url);
-      toast.success(`Transcript exported as .${format}`);
+      window.setTimeout(() => URL.revokeObjectURL(url), 500);
+      toast.success(`Transcript exported as .${ext}`);
     },
-    [source, translation],
+    [source, translation, snapshot],
   );
 
   const handleClear = useCallback(() => {
