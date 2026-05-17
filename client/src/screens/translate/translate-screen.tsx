@@ -12,8 +12,9 @@ import { useApiKeyProvider } from "@/hooks/use-api-key";
 import { FirstRunHero } from "./first-run-hero";
 import { CaptionsCanvas } from "./captions-canvas";
 import { CompactControlBar } from "./compact-control-bar";
-import { downloadTranscript, msToSrtTime } from "@/lib/transcript-export";
+import { downloadTranscript, msToSrtTime, buildSegmentsFromCaptions } from "@/lib/transcript-export";
 import type { CaptionEntry } from "@/captions";
+import { transcriptHistory } from "@/lib/transcript-history";
 import { toast } from "sonner";
 
 const CAPTION_PUNCT = /[.!?。？！]\s*$/;
@@ -103,7 +104,7 @@ export function TranslateScreen(): React.JSX.Element {
     (format: "txt" | "srt" | "json") => {
       if (format === "srt") {
         // Prefer transcript store (sentence-level, absolute timestamps).
-        // Fall back to caption-entry SRT if transcript store wasn't populated.
+        // Fall back to caption-entry SRT when transcript store wasn't populated.
         const hasTranscriptTarget = snapshot.segments.some((s) => s.kind === "target");
         if (hasTranscriptTarget) {
           downloadTranscript(snapshot, "srt");
@@ -126,44 +127,74 @@ export function TranslateScreen(): React.JSX.Element {
         return;
       }
 
-      let content: string;
-      let mimeType: string;
-      let ext: string;
-
       if (format === "txt") {
-        // Always read from caption store — it's populated from live streaming deltas
-        // and works even when the transcript store hasn't flushed sentences yet.
+        // Prefer transcript store — sentence-level paragraphs, accumulates across stop/start.
+        // Fall back to caption store when transcript store wasn't populated (HMR case).
+        if (snapshot.segments.length > 0) {
+          downloadTranscript(snapshot, "text");
+          toast.success("Transcript exported as .txt");
+          return;
+        }
         const srcText = source.map((e) => e.text).join("").trim();
         const tgtText = translation.map((e) => e.text).join("").trim();
         const parts: string[] = [];
         if (srcText) parts.push(`Source:\n${srcText}`);
         if (tgtText) parts.push(`Translation:\n${tgtText}`);
-        content = parts.join("\n\n") || "(no transcript)";
-        mimeType = "text/plain;charset=utf-8";
-        ext = "txt";
-      } else {
-        content = JSON.stringify({ source, translation }, null, 2);
-        mimeType = "application/json;charset=utf-8";
-        ext = "json";
+        const content = parts.join("\n\n") || "(no transcript)";
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transcript.txt";
+        a.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 500);
+        toast.success("Transcript exported as .txt");
+        return;
       }
 
-      const blob = new Blob([content], { type: mimeType });
+      // JSON — raw caption store entries
+      const content = JSON.stringify({ source, translation }, null, 2);
+      const blob = new Blob([content], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `transcript.${ext}`;
+      a.download = "transcript.json";
       a.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 500);
-      toast.success(`Transcript exported as .${ext}`);
+      toast.success("Transcript exported as .json");
     },
     [source, translation, snapshot],
   );
 
   const handleClear = useCallback(() => {
+    // Save current session to history before wiping stores.
+    // Prefer transcript store segments (sentence-level); fall back to building
+    // from caption deltas when transcript store was never populated (HMR case).
+    const hasTranscriptContent = snapshot.segments.length > 0;
+    const hasCaptionContent = source.length > 0 || translation.length > 0;
+    if (hasTranscriptContent || hasCaptionContent) {
+      const segments = hasTranscriptContent
+        ? snapshot.segments
+        : buildSegmentsFromCaptions(source, translation, snapshot.targetLanguage || targetLang);
+      const sessionStartedAt =
+        snapshot.sessionStartedAt ??
+        new Date(
+          performance.timeOrigin +
+            Math.round((source[0]?.ts ?? translation[0]?.ts ?? performance.now())),
+        ).toISOString();
+      transcriptHistory.save({
+        id: sessionStartedAt,
+        startedAt: sessionStartedAt,
+        endedAt: new Date().toISOString(),
+        durationMs: Date.now() - new Date(sessionStartedAt).getTime(),
+        targetLang: snapshot.targetLanguage || targetLang,
+        segments,
+      });
+    }
     clearCaptions();
     clearTranscript();
     toast.info("Captions cleared");
-  }, [clearCaptions, clearTranscript]);
+  }, [clearCaptions, clearTranscript, snapshot, source, translation, targetLang]);
 
   const handleToggle = useCallback(() => {
     if (session.state === "idle" || session.state === "failed" || session.state === "closed") {

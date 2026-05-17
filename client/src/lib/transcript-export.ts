@@ -1,5 +1,5 @@
 import { ALLOWED_LANGS, LANGUAGE_LABELS } from "../config/languages";
-import type { TranscriptSnapshot, TranscriptSegmentKind } from "./transcript-store";
+import type { TranscriptSnapshot, TranscriptSegment, TranscriptSegmentKind } from "./transcript-store";
 
 export type TranscriptExportFormat = "markdown" | "text" | "srt";
 
@@ -54,17 +54,21 @@ function toMarkdown(snapshot: TranscriptSnapshot): string {
 }
 
 function toText(snapshot: TranscriptSnapshot): string {
-  const lines = [
-    "Babel Mic Transcript",
-    `Target language: ${languageLabel(snapshot.targetLanguage)}`,
-    `Session started: ${snapshot.sessionStartedAt ?? "unknown"}`,
-    `Session ended: ${snapshot.sessionEndedAt ?? "not recorded"}`,
-    "",
-  ];
-  for (const segment of snapshot.segments) {
-    lines.push(`[${segment.finalizedAt}] ${side(segment.kind)}: ${segment.text}`);
-  }
-  return `${lines.join("\n")}\n`;
+  const srcText = snapshot.segments
+    .filter((s) => s.kind === "source")
+    .map((s) => s.text)
+    .join(" ")
+    .trim();
+  const tgtText = snapshot.segments
+    .filter((s) => s.kind === "target")
+    .map((s) => s.text)
+    .join(" ")
+    .trim();
+
+  const parts: string[] = [];
+  if (srcText) parts.push(`Source:\n${srcText}`);
+  if (tgtText) parts.push(`Translation (${languageLabel(snapshot.targetLanguage)}):\n${tgtText}`);
+  return parts.length ? `${parts.join("\n\n")}\n` : "(no transcript)\n";
 }
 
 function languageLabel(code: string): string {
@@ -112,4 +116,52 @@ export function msToSrtTime(ms: number): string {
   const s = Math.floor((ms % 60_000) / 1_000);
   const ms3 = ms % 1_000;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(ms3).padStart(3, "0")}`;
+}
+
+const SENTENCE_END = /[.!?。？！]\s*$/;
+
+/**
+ * Build sentence-level TranscriptSegments from raw caption delta entries.
+ * Used as a fallback when the transcript store was never populated (e.g. HMR).
+ * Caption entry timestamps are performance.now() values; wall-clock times are
+ * recovered via performance.timeOrigin.
+ */
+export function buildSegmentsFromCaptions(
+  srcEntries: { text: string; ts: number }[],
+  tgtEntries: { text: string; ts: number }[],
+  targetLanguage: string,
+): TranscriptSegment[] {
+  const segments: TranscriptSegment[] = [];
+
+  function flush(entries: { text: string; ts: number }[], kind: TranscriptSegmentKind) {
+    let buf = "";
+    let bufStartTs = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i];
+      if (buf === "") bufStartTs = e.ts;
+      buf += e.text;
+      const isLast = i === entries.length - 1;
+      if (SENTENCE_END.test(buf) || isLast) {
+        const trimmed = buf.trim();
+        if (trimmed) {
+          const createdAt = new Date(performance.timeOrigin + bufStartTs).toISOString();
+          const finalizedAt = new Date(performance.timeOrigin + e.ts).toISOString();
+          segments.push({
+            id: `${finalizedAt}-${segments.length}`,
+            kind,
+            text: trimmed,
+            createdAt,
+            finalizedAt,
+            targetLanguage,
+          });
+        }
+        buf = "";
+      }
+    }
+  }
+
+  flush(srcEntries, "source");
+  flush(tgtEntries, "target");
+  segments.sort((a, b) => a.finalizedAt.localeCompare(b.finalizedAt));
+  return segments;
 }

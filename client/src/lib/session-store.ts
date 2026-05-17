@@ -16,7 +16,6 @@ import type { CaptionStore } from "@/captions";
 import type { Settings } from "@/settings";
 import type { ApiKeyProvider } from "@/types";
 import type { LatencyWarning } from "@/lib/latency-warning";
-import { transcriptHistory } from "@/lib/transcript-history";
 
 export type SessionState = "idle" | "connecting" | "connected" | "failed" | "closed";
 
@@ -148,34 +147,17 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
       });
     }
 
-    // Flush remaining buffered text before snapshotting for history.
+    // Flush remaining buffered text into transcript store.
+    // History is saved when the user clicks Clear (not on Stop) so sessions
+    // accumulate across stop/start cycles.
     flushTranscript("source");
     flushTranscript("target");
-
-    // Persist completed session to transcript history before clearing state.
-    const snap = transcript.snapshot();
-    if (snap.sessionStartedAt && snap.segments.length > 0) {
-      const endedAt = snap.sessionEndedAt ?? new Date().toISOString();
-      const startMs = new Date(snap.sessionStartedAt).getTime();
-      const endMs = new Date(endedAt).getTime();
-      try {
-        transcriptHistory.save({
-          id: snap.sessionStartedAt,
-          startedAt: snap.sessionStartedAt,
-          endedAt,
-          durationMs: Math.max(0, endMs - startMs),
-          targetLang: snap.targetLanguage,
-          segments: snap.segments,
-        });
-      } catch (err) {
-        console.warn("[session-store] history save failed:", err);
-      }
-    }
 
     startedAt = 0;
     stopTick();
     durationMs = 0;
-    transcript.endSession();
+    // Do NOT call transcript.endSession() or transcript.clear() — keep segments
+    // alive so a subsequent Start resumes the same user session.
     latency.reset();
     state = "idle";
     notify();
@@ -189,7 +171,11 @@ export function createSessionStore(deps: SessionStoreDeps): SessionStore {
     srcBuffer = "";
     tgtBuffer = "";
     captions.clear();
-    transcript.beginSession(settings.get("mt.target_lang"));
+    // Only start a fresh session when no session is open yet; resuming after
+    // Stop should append to the same session so downloads accumulate content.
+    if (!transcript.snapshot().sessionStartedAt) {
+      transcript.beginSession(settings.get("mt.target_lang"));
+    }
     state = "connecting";
     notify();
 
