@@ -45,7 +45,7 @@ function CaptionPanel({ label, entries, className }: CaptionPanelProps): React.J
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-1"
+        className="flex-1 overflow-y-auto px-4 py-3"
         aria-label={`${label} captions`}
         aria-live="polite"
         aria-atomic="false"
@@ -53,18 +53,21 @@ function CaptionPanel({ label, entries, className }: CaptionPanelProps): React.J
         {entries.length === 0 ? (
           <p className="text-sm text-muted-foreground/50 italic">Waiting for audio…</p>
         ) : (
-          entries.map((entry) => (
-            <p
-              key={entry.id}
-              className={cn(
-                "rounded px-2 py-0.5 text-sm leading-relaxed transition-colors",
-                // Highlight active streaming caption (not yet final)
-                !entry.final && "bg-primary/5 font-medium",
-              )}
-            >
-              {entry.text}
-            </p>
-          ))
+          <p className="text-sm leading-relaxed">
+            {entries.map((entry, i) => (
+              <React.Fragment key={entry.id}>
+                {i > 0 && " "}
+                <span
+                  className={cn(
+                    "transition-colors",
+                    !entry.final && "bg-primary/5 font-medium rounded px-0.5",
+                  )}
+                >
+                  {entry.text}
+                </span>
+              </React.Fragment>
+            ))}
+          </p>
         )}
       </div>
     </div>

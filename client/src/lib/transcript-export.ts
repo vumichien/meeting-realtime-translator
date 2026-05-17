@@ -1,27 +1,30 @@
 import { ALLOWED_LANGS, LANGUAGE_LABELS } from "../config/languages";
 import type { TranscriptSnapshot, TranscriptSegmentKind } from "./transcript-store";
 
-export type TranscriptExportFormat = "markdown" | "text";
+export type TranscriptExportFormat = "markdown" | "text" | "srt";
 
 export function serializeTranscript(
   snapshot: TranscriptSnapshot,
   format: TranscriptExportFormat,
 ): string {
-  return format === "markdown" ? toMarkdown(snapshot) : toText(snapshot);
+  if (format === "markdown") return toMarkdown(snapshot);
+  if (format === "srt") return toSrt(snapshot);
+  return toText(snapshot);
 }
 
 export function transcriptFilename(format: TranscriptExportFormat, now = new Date()): string {
   const stamp = now.toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  return `babel-mic-transcript-${stamp}.${format === "markdown" ? "md" : "txt"}`;
+  const ext = format === "markdown" ? "md" : format === "srt" ? "srt" : "txt";
+  return `babel-mic-transcript-${stamp}.${ext}`;
 }
 
 export function downloadTranscript(
   snapshot: TranscriptSnapshot,
   format: TranscriptExportFormat,
 ) {
-  const blob = new Blob([serializeTranscript(snapshot, format)], {
-    type: format === "markdown" ? "text/markdown;charset=utf-8" : "text/plain;charset=utf-8",
-  });
+  const mimeType =
+    format === "markdown" ? "text/markdown;charset=utf-8" : "text/plain;charset=utf-8";
+  const blob = new Blob([serializeTranscript(snapshot, format)], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -78,4 +81,35 @@ function side(kind: TranscriptSegmentKind): string {
 
 function escapeTable(value: string): string {
   return value.replace(/\|/g, "\\|").replace(/\n/g, " ");
+}
+
+function toSrt(snapshot: TranscriptSnapshot): string {
+  const sessionStart = snapshot.sessionStartedAt
+    ? new Date(snapshot.sessionStartedAt).getTime()
+    : 0;
+  // SRT contains translation segments only (subtitle-ready output)
+  const segs = snapshot.segments.filter((s) => s.kind === "target");
+  if (segs.length === 0) return "";
+
+  const lines: string[] = [];
+  segs.forEach((seg, i) => {
+    const startMs = Math.max(0, new Date(seg.finalizedAt).getTime() - sessionStart);
+    const endMs =
+      i < segs.length - 1
+        ? Math.max(0, new Date(segs[i + 1].finalizedAt).getTime() - sessionStart)
+        : startMs + 3000;
+    lines.push(`${i + 1}`);
+    lines.push(`${msToSrtTime(startMs)} --> ${msToSrtTime(endMs)}`);
+    lines.push(seg.text);
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function msToSrtTime(ms: number): string {
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  const s = Math.floor((ms % 60_000) / 1_000);
+  const ms3 = ms % 1_000;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(ms3).padStart(3, "0")}`;
 }

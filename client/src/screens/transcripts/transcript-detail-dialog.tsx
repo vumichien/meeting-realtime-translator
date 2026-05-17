@@ -140,6 +140,11 @@ export function TranscriptDetailDialog({
                     >
                       Plain text (.txt)
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => downloadTranscript(snap, "srt")}
+                    >
+                      Subtitles (.srt)
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => downloadJson(session)}>
                       JSON (.json)
                     </DropdownMenuItem>
