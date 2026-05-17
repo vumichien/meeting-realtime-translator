@@ -42,15 +42,17 @@ interface ControlFieldProps {
   icon: LucideIcon;
   label: string;
   children: React.ReactNode;
+  tourId?: string;
 }
 
 function ControlField({
   icon: Icon,
   label,
   children,
+  tourId,
 }: ControlFieldProps): React.JSX.Element {
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1" data-tour-id={tourId}>
       <div className="flex items-center gap-1.5 px-1 text-[0.68rem] font-medium uppercase leading-none tracking-wide text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         <span>{label}</span>
@@ -85,7 +87,7 @@ export function CompactControlBar({
   return (
     <div className="shrink-0 border-t border-border bg-background/95 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex flex-wrap items-end gap-2.5">
-        <ControlField icon={Mic} label="Source mic">
+        <ControlField icon={Mic} label="Source mic" tourId="source-mic-select">
           <Select value={micId || undefined} onValueChange={onMicChange}>
             <SelectTrigger className="h-9 w-56 text-xs" aria-label="Source microphone">
               <SelectValue placeholder="Choose your real microphone" />
@@ -100,7 +102,7 @@ export function CompactControlBar({
           </Select>
         </ControlField>
 
-        <ControlField icon={Volume2} label="Output to meeting">
+        <ControlField icon={Volume2} label="Output to meeting" tourId="output-device-select">
           <Select value={outputId || undefined} onValueChange={onOutputChange}>
             <SelectTrigger className="h-9 w-56 text-xs" aria-label="Output device">
               <SelectValue placeholder="Choose virtual cable output" />
@@ -115,7 +117,7 @@ export function CompactControlBar({
           </Select>
         </ControlField>
 
-        <ControlField icon={Languages} label="Translate to">
+        <ControlField icon={Languages} label="Translate to" tourId="target-language-select">
           <Select value={targetLang} onValueChange={onLangChange}>
             <SelectTrigger className="h-9 w-40 text-xs" aria-label="Target language">
               <SelectValue placeholder="Target language" />
@@ -138,6 +140,7 @@ export function CompactControlBar({
             variant="destructive"
             onClick={onStop}
             disabled={isConnecting}
+            data-tour-id="start-translation-button"
             className="h-9 gap-1.5 text-xs"
             aria-label="Stop translation"
           >
@@ -148,6 +151,7 @@ export function CompactControlBar({
           <Button
             size="sm"
             onClick={onStart}
+            data-tour-id="start-translation-button"
             className="h-9 gap-1.5 text-xs"
             aria-label="Start translation"
           >
@@ -160,6 +164,7 @@ export function CompactControlBar({
           size="sm"
           variant="outline"
           onClick={onClear}
+          data-tour-id="clear-button"
           className="h-9 gap-1.5 text-xs"
           aria-label="Clear captions"
           title="Clear captions"
